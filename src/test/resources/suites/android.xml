@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Android Suite" verbose="1">
+    <listeners>
+        <listener class-name="core.RetryListener"/>
+    </listeners>
+    <test name="Android smoke">
+        <classes>
+            <class name="tests.SmokeTest"/>                 <!-- запуск приложения 1 кейс -->
+            <class name="tests.LanguageSelectionTest"/>     <!-- выбор языка (4 опции) 2 кейс -->
+            <class name="tests.WelcomeTest"/>               <!-- экран приветствия 2 кейс -->
+            <class name="tests.BranchesTest"/>              <!-- филиалы + диалог геолокации 3 кейс -->
+            <class name="tests.MoreTest"/>                  <!-- экран "О Банке" 2 кейс -->
+            <class name="tests.PhoneLoginTest"/>            <!-- ввод номера телефона 5 кейс -->
+            <class name="tests.AgreementLinkTest"/>         <!-- ссылка "условиями Банка" + bottom sheet 6 кейс -->
+            <class name="tests.TermsDocumentTest"/>         <!-- PDF viewer документов 6 кейс -->
+        </classes>
+    </test>
+</suite>
