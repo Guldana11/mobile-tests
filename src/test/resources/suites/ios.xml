@@ -7,14 +7,9 @@
     <test name="iOS smoke">
         <classes>
             <class name="tests.SmokeTest"/>
-            <!-- LanguageSelectionTest: пока подключаем только первый тест.
-                 Второй (selectingRussianOpensWelcomeScreen) добавим, когда WelcomePage
-                 будет адаптирован под iOS. -->
-            <class name="tests.LanguageSelectionTest">
-                <methods>
-                    <include name="languageScreenIsDisplayed"/>
-                </methods>
-            </class>
+            <class name="tests.LanguageSelectionTest"/>  <!-- 2 кейса -->
+            <class name="tests.WelcomeTest"/>             <!-- 2 кейса -->
+
         </classes>
     </test>
 </suite>
