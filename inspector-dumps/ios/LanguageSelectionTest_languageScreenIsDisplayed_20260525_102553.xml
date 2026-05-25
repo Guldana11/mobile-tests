@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<AppiumAUT>
+  <XCUIElementTypeApplication type="XCUIElementTypeApplication" name="BNK Test" label="BNK Test" enabled="true" visible="true" accessible="false" x="0" y="0" width="402" height="874" index="0" traits="" processId="8545" bundleId="ibn.bnk.kz">
+    <XCUIElementTypeWindow type="XCUIElementTypeWindow" enabled="true" visible="true" accessible="false" x="0" y="0" width="402" height="874" index="0" traits="">
+      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="true" accessible="false" x="0" y="0" width="402" height="874" index="0" traits="">
+        <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="true" accessible="false" x="0" y="0" width="402" height="874" index="0" traits="">
+          <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="true" accessible="false" x="0" y="0" width="402" height="874" index="0" traits="">
+            <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="true" accessible="false" x="0" y="0" width="402" height="874" index="0" traits="">
+              <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="true" accessible="false" x="0" y="62" width="402" height="778" index="0" traits=""/>
+              <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="true" accessible="false" x="0" y="0" width="402" height="874" index="1" traits="">
+                <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="true" accessible="false" x="0" y="0" width="402" height="874" index="0" traits="">
+                  <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="true" accessible="false" x="0" y="0" width="402" height="874" index="0" traits="">
+                    <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="true" accessible="false" x="0" y="0" width="402" height="874" index="0" traits="">
+                      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="true" accessible="false" x="0" y="0" width="402" height="874" index="0" traits="">
+                        <XCUIElementTypeImage type="XCUIElementTypeImage" name="SplashScreen/image" label="SplashScreen/image" enabled="true" visible="true" accessible="true" x="0" y="271" width="402" height="603" index="0" traits="Image"/>
+                        <XCUIElementTypeImage type="XCUIElementTypeImage" name="Common/logo" label="Common/logo" enabled="true" visible="true" accessible="true" x="115" y="210" width="172" height="33" index="1" traits="Image"/>
+                      </XCUIElementTypeOther>
+                    </XCUIElementTypeOther>
+                  </XCUIElementTypeOther>
+                </XCUIElementTypeOther>
+              </XCUIElementTypeOther>
+              <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="Language" name="Language" label="Language" enabled="true" visible="true" accessible="true" x="162" y="516" width="78" height="21" index="2" traits="StaticText"/>
+              <XCUIElementTypeButton type="XCUIElementTypeButton" name="Қазақша" label="Қазақша" enabled="true" visible="true" accessible="true" x="16" y="552" width="370" height="56" index="3" traits="Button">
+                <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="Қазақша" name="Қазақша" label="Қазақша" enabled="true" visible="true" accessible="false" x="32" y="570" width="72" height="20" index="0" traits="StaticText"/>
+                <XCUIElementTypeImage type="XCUIElementTypeImage" name="Common/checkmark-off" label="Common/checkmark-off" enabled="true" visible="true" accessible="false" x="346" y="568" width="24" height="24" index="1" traits="Image"/>
+              </XCUIElementTypeButton>
+              <XCUIElementTypeButton type="XCUIElementTypeButton" name="Русский" label="Русский" enabled="true" visible="true" accessible="true" x="16" y="624" width="370" height="56" index="4" traits="Button">
+                <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="Русский" name="Русский" label="Русский" enabled="true" visible="true" accessible="false" x="32" y="642" width="67" height="20" index="0" traits="StaticText"/>
+                <XCUIElementTypeImage type="XCUIElementTypeImage" name="Common/checkmark-off" label="Common/checkmark-off" enabled="true" visible="true" accessible="false" x="346" y="640" width="24" height="24" index="1" traits="Image"/>
+              </XCUIElementTypeButton>
+              <XCUIElementTypeButton type="XCUIElementTypeButton" name="English" label="English" enabled="true" visible="true" accessible="true" x="16" y="696" width="370" height="56" index="5" traits="Button">
+                <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="English" name="English" label="English" enabled="true" visible="true" accessible="false" x="31" y="714" width="58" height="20" index="0" traits="StaticText"/>
+                <XCUIElementTypeImage type="XCUIElementTypeImage" name="Common/checkmark-off" label="Common/checkmark-off" enabled="true" visible="true" accessible="false" x="346" y="712" width="24" height="24" index="1" traits="Image"/>
+              </XCUIElementTypeButton>
+              <XCUIElementTypeButton type="XCUIElementTypeButton" name="한국어" label="한국어" enabled="true" visible="true" accessible="true" x="16" y="768" width="370" height="56" index="6" traits="Button">
+                <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="한국어" name="한국어" label="한국어" enabled="true" visible="true" accessible="false" x="32" y="786" width="42" height="20" index="0" traits="StaticText"/>
+                <XCUIElementTypeImage type="XCUIElementTypeImage" name="Common/checkmark-off" label="Common/checkmark-off" enabled="true" visible="true" accessible="false" x="346" y="784" width="24" height="24" index="1" traits="Image"/>
+              </XCUIElementTypeButton>
+            </XCUIElementTypeOther>
+          </XCUIElementTypeOther>
+        </XCUIElementTypeOther>
+      </XCUIElementTypeOther>
+    </XCUIElementTypeWindow>
+  </XCUIElementTypeApplication>
+</AppiumAUT>
