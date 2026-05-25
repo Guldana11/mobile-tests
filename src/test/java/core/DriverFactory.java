@@ -59,15 +59,24 @@ public final class DriverFactory {
         XCUITestOptions opts = new XCUITestOptions()
                 .setPlatformName("iOS")
                 .setAutomationName("XCUITest")
-                .setDeviceName(p.getProperty("device.name"));
+                .setDeviceName(p.getProperty("device.name"))
+                .setNoReset(Boolean.parseBoolean(p.getProperty("no.reset", "false")))
+                .setFullReset(Boolean.parseBoolean(p.getProperty("full.reset", "true")));
 
         String pv = p.getProperty("platform.version");
         if (pv != null && !pv.isBlank()) opts.setPlatformVersion(pv);
+
+        String bundleId = p.getProperty("bundle.id");
+        if (bundleId != null && !bundleId.isBlank()) opts.setBundleId(bundleId);
 
         String appPath = p.getProperty("app.path");
         if (appPath != null && !appPath.isBlank()) {
             opts.setApp(Paths.get(appPath).toAbsolutePath().toString());
         }
+
+        // First-time WDA build can take a minute or two on a cold simulator.
+        opts.setCapability("appium:wdaLaunchTimeout", 120000);
+        opts.setCapability("appium:wdaConnectionTimeout", 120000);
         return opts;
     }
 
