@@ -9,6 +9,7 @@
             <class name="tests.SmokeTest"/>
             <class name="tests.LanguageSelectionTest"/>  <!-- 2 кейса -->
             <class name="tests.WelcomeTest"/>             <!-- 2 кейса -->
+            <class name="tests.BranchesTest"/>            <!-- 3 кейса (iOS-ветка для permission) -->
 
         </classes>
     </test>

@@ -77,6 +77,10 @@ public final class DriverFactory {
         // First-time WDA build can take a minute or two on a cold simulator.
         opts.setCapability("appium:wdaLaunchTimeout", 120000);
         opts.setCapability("appium:wdaConnectionTimeout", 120000);
+        // Auto-accept system alerts. On iOS the location-permission alert is raised on app start
+        // (unlike Android, where it shows only after tapping "Filials"), and it blocks every tap
+        // underneath. Auto-accepting unblocks the UI; the iOS PermissionDialog page is a no-op.
+        opts.setCapability("appium:autoAcceptAlerts", true);
         return opts;
     }
 
