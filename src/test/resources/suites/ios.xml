@@ -10,6 +10,9 @@
             <class name="tests.LanguageSelectionTest"/>  <!-- 2 кейса -->
             <class name="tests.WelcomeTest"/>             <!-- 2 кейса -->
             <class name="tests.BranchesTest"/>            <!-- 3 кейса (iOS-ветка для permission) -->
+            <!-- MoreTest: пока упадёт — AboutBankPage не адаптирован под iOS.
+                 BaseTest сохранит page-source в build/test-artifacts/ при падении. -->
+            <class name="tests.MoreTest"/>                <!-- 2 кейса -->
 
         </classes>
     </test>
