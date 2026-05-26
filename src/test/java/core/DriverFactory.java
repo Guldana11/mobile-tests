@@ -40,10 +40,13 @@ public final class DriverFactory {
                 .setNoReset(Boolean.parseBoolean(p.getProperty("no.reset", "false")))
                 .setFullReset(Boolean.parseBoolean(p.getProperty("full.reset", "true")));
         // Generous ADB / app-start timeouts — slow emulators time out at the default 20 s.
-        opts.setCapability("appium:adbExecTimeout", 60000);
-        opts.setCapability("appium:appWaitDuration", 30000);
-        opts.setCapability("appium:uiautomator2ServerLaunchTimeout", 60000);
-        opts.setCapability("appium:uiautomator2ServerInstallTimeout", 60000);
+        // Bumped above the original defaults because cold-boot + fullReset on every test
+        // doubles install/instrument time vs. a warm emulator.
+        opts.setCapability("appium:adbExecTimeout", 120000);
+        opts.setCapability("appium:appWaitDuration", 60000);
+        opts.setCapability("appium:uiautomator2ServerLaunchTimeout", 180000);
+        opts.setCapability("appium:uiautomator2ServerInstallTimeout", 120000);
+        opts.setCapability("appium:androidInstallTimeout", 240000);
 
         String pv = p.getProperty("platform.version");
         if (pv != null && !pv.isBlank()) opts.setPlatformVersion(pv);

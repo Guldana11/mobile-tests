@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<!-- Temporary suite: только те тесты, которые мы адаптировали под iOS.
+     Используется для проверки что Android-регрессий нет после кросс-платформенного рефакторинга
+     LanguageSelectionPage, WelcomePage, BranchesPage, PermissionDialog, AboutBankPage.
+     Запуск: ./gradlew test -Dplatform=android-iosflow -->
+<suite name="Android Cross-Platform Regression" verbose="1">
+    <listeners>
+        <listener class-name="core.RetryListener"/>
+    </listeners>
+    <test name="Android iOS-flow regression">
+        <classes>
+            <class name="tests.SmokeTest"/>
+            <class name="tests.LanguageSelectionTest"/>
+            <class name="tests.WelcomeTest"/>
+            <class name="tests.BranchesTest"/>
+            <class name="tests.MoreTest"/>
+        </classes>
+    </test>
+</suite>

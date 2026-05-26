@@ -49,7 +49,10 @@ tasks.test {
     dependsOn(cleanOldArtifacts)
     useTestNG {
         val platform = System.getProperty("platform", "android")
-        suiteXmlFiles = listOf(file("src/test/resources/suites/$platform.xml"))
+        // -DsuiteFile=foo.xml lets us run a custom suite (e.g. a regression subset)
+        // while keeping -Dplatform=android for driver/properties selection.
+        val suiteFile = System.getProperty("suiteFile", "$platform.xml")
+        suiteXmlFiles = listOf(file("src/test/resources/suites/$suiteFile"))
     }
     systemProperties = System.getProperties()
         .entries

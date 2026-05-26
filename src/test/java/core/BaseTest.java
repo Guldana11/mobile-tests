@@ -1,8 +1,10 @@
 package core;
 
+import io.appium.java_client.AppiumBy;
 import io.appium.java_client.AppiumDriver;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.WebElement;
 import org.testng.ITestResult;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -37,6 +39,27 @@ public abstract class BaseTest {
         }
         driver = DriverFactory.create(Platform.current());
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
+        dismissAndroidAnrDialogIfPresent();
+    }
+
+    /**
+     * The Android System UI can throw an "isn't responding" ANR dialog when the device
+     * is under heavy reinstall pressure (our fullReset-per-test pattern triggers it).
+     * The dialog overlays the app and blocks the accessibility tree, so any findElements
+     * call returns empty even though the real UI is right behind it. Dismiss by tapping
+     * "Wait" — that keeps the app running and the underlying screen accessible.
+     */
+    private void dismissAndroidAnrDialogIfPresent() {
+        if (Platform.current() != Platform.ANDROID) return;
+        try {
+            var waitButtons = driver.findElements(
+                    AppiumBy.androidUIAutomator("new UiSelector().text(\"Wait\")"));
+            if (!waitButtons.isEmpty()) {
+                waitButtons.get(0).click();
+                System.out.println("[anr-dismiss] closed System UI ANR dialog");
+            }
+        } catch (Exception ignored) {
+        }
     }
 
     private void uninstallAndroidApp() {
