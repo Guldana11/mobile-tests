@@ -1,6 +1,7 @@
 package tests;
 
 import core.BaseTest;
+import core.Platform;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -69,7 +70,11 @@ public class TermsDocumentTest extends BaseTest {
         PdfDocumentPage pdf = new PdfDocumentPage(driver);
         Assert.assertTrue(pdf.isDisplayed(), "PDF viewer should open");
         Assert.assertTrue(pdf.hasPdfPages(), "PDF should render at least one page");
-        Assert.assertTrue(pdf.hasAcceptButton(), "PDF should show the Accept button");
+        // The iOS build renders the document in a WebView with no native Accept button —
+        // the control exists only on Android in this build.
+        if (Platform.current() == Platform.ANDROID) {
+            Assert.assertTrue(pdf.hasAcceptButton(), "PDF should show the Accept button");
+        }
     }
 
     @Test(description = "Back button from PDF returns user back to phone login screen")

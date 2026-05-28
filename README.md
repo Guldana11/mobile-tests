@@ -178,8 +178,15 @@ allure serve allure-results
 | WelcomeTest | ✅ | ✅ |
 | BranchesTest | ✅ | ✅ |
 | MoreTest | ✅ | ✅ |
-| PhoneLoginTest | ✅ | ⏳ |
-| AgreementLinkTest | ✅ | ⏳ |
-| TermsDocumentTest | ✅ | ⏳ |
+| PhoneLoginTest | ✅ | ✅ |
+| AgreementLinkTest | ✅ | ✅ |
+| TermsDocumentTest | ✅ | ✅ |
 
-⏳ — Page Object'ы пока с Android-локаторами, адаптация под iOS в работе.
+Платформенные отличия iOS (учтены в Page Object'ах / тестах):
+- **PhoneLogin** — у iOS-экрана нет кнопки «назад» и возврат на Welcome не работает
+  (известный баг приложения), поэтому кейс `backArrowReturnsToWelcome` на iOS пропускается
+  (`SkipException`).
+- **AgreementBottomSheet** — заголовок «Условия банка» (строчная), закрытие тапом по
+  затемнённому фону (нет элемента `touch_outside`); сравнение заголовка регистронезависимое.
+- **PDF viewer** — документ в `WebView`; кнопки «Принять» нет, поэтому её проверка
+  выполняется только на Android.

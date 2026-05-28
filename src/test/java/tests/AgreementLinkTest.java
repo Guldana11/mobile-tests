@@ -41,7 +41,9 @@ public class AgreementLinkTest extends BaseTest {
         AgreementBottomSheet sheet = new AgreementBottomSheet(driver);
         Assert.assertTrue(sheet.isDisplayed(),
                 "Bank Terms bottom sheet should appear");
-        Assert.assertEquals(sheet.getTitle(), "Условия Банка");
+        // Title casing differs across platforms: Android "Условия Банка" vs iOS "Условия банка".
+        Assert.assertTrue(sheet.getTitle().equalsIgnoreCase("Условия Банка"),
+                "Bottom sheet title should be the Bank Terms title, was: " + sheet.getTitle());
     }
 
     @Test(description = "Bottom sheet contains both terms documents")
