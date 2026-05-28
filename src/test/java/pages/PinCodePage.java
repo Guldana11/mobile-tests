@@ -10,16 +10,19 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import java.time.Duration;
 
 /**
- * PIN-code creation screen ("Создайте код входа"), shown right after a successful password login
- * on a fresh install. iOS exposes the keypad digits as buttons whose accessibility id is the digit
- * and a "Common/backspace" button. There are no accessible PIN indicators in the tree.
+ * PIN-code creation screen ("Создайте код входа"), shown right after a successful password login on
+ * a fresh install. Android exposes the keypad as buttons btn0..btn9 + btn_delete; iOS exposes the
+ * digits as buttons whose accessibility id is the digit, plus a "Common/backspace" button.
  */
 public class PinCodePage extends BasePage {
 
-    private static final String IOS_TITLE = "Создайте код входа";
-    private static final String IOS_BACKSPACE = "Common/backspace";
+    private static final String TITLE = "Создайте код входа";
 
-    private static final String ANDROID_TODO = "PinCodePage: Android not implemented yet";
+    private static final String ANDROID_TITLE_ID = "kz.bnk.app.dev:id/tv_title";
+    private static final String ANDROID_DIGIT_PREFIX = "kz.bnk.app.dev:id/btn";
+    private static final String ANDROID_BACKSPACE = "kz.bnk.app.dev:id/btn_delete";
+
+    private static final String IOS_BACKSPACE = "Common/backspace";
 
     public PinCodePage(AppiumDriver driver) {
         super(driver);
@@ -58,22 +61,23 @@ public class PinCodePage extends BasePage {
 
     private By titleLocator() {
         return switch (Platform.current()) {
-            case IOS -> AppiumBy.accessibilityId(IOS_TITLE);
-            case ANDROID -> throw new UnsupportedOperationException(ANDROID_TODO);
+            case ANDROID -> AppiumBy.androidUIAutomator(
+                    "new UiSelector().resourceId(\"" + ANDROID_TITLE_ID + "\").text(\"" + TITLE + "\")");
+            case IOS -> AppiumBy.accessibilityId(TITLE);
         };
     }
 
     private By digitLocator(int digit) {
         return switch (Platform.current()) {
+            case ANDROID -> AppiumBy.id(ANDROID_DIGIT_PREFIX + digit);
             case IOS -> AppiumBy.accessibilityId(String.valueOf(digit));
-            case ANDROID -> throw new UnsupportedOperationException(ANDROID_TODO);
         };
     }
 
     private By backspaceLocator() {
         return switch (Platform.current()) {
+            case ANDROID -> AppiumBy.id(ANDROID_BACKSPACE);
             case IOS -> AppiumBy.accessibilityId(IOS_BACKSPACE);
-            case ANDROID -> throw new UnsupportedOperationException(ANDROID_TODO);
         };
     }
 }

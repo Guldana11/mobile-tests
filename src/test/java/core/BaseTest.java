@@ -43,6 +43,25 @@ public abstract class BaseTest {
     }
 
     /**
+     * Quits the current session, reinstalls the app and starts a fresh session — equivalent to a
+     * clean re-run of {@link #setUp()}. Used by tests that need a clean slate mid-test, e.g. to
+     * retry a login flow with a fallback account after the primary one is not accepted.
+     */
+    protected void reinstallAndRestart() {
+        if (driver != null) {
+            driver.quit();
+            driver = null;
+        }
+        switch (Platform.current()) {
+            case ANDROID -> uninstallAndroidApp();
+            case IOS -> uninstallIOSApp();
+        }
+        driver = DriverFactory.create(Platform.current());
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
+        dismissAndroidAnrDialogIfPresent();
+    }
+
+    /**
      * The Android System UI can throw an "isn't responding" ANR dialog when the device
      * is under heavy reinstall pressure (our fullReset-per-test pattern triggers it).
      * The dialog overlays the app and blocks the accessibility tree, so any findElements

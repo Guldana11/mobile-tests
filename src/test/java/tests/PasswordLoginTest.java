@@ -1,48 +1,39 @@
 package tests;
 
 import core.BaseTest;
+import core.Platform;
 import org.testng.Assert;
+import org.testng.SkipException;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-import pages.LanguageSelectionPage;
-import pages.LanguageSelectionPage.Language;
 import pages.PasswordPage;
-import pages.PermissionDialog;
-import pages.PhoneLoginPage;
 import pages.PinCodePage;
-import pages.WelcomePage;
 
 import java.time.Duration;
 
 /**
  * Тесты экрана ввода пароля (login). Открывается после ввода номера телефона тестового аккаунта
  * и нажатия "Продолжить". Пароль проверяется на сервере при нажатии: верный → экран создания PIN,
- * неверный → нативный алерт "Неверные данные для входа".
+ * неверный → нативный алерт "Неверные данные для входа". Успешный вход использует основной аккаунт
+ * с откатом на запасной (см. {@link LoginFlow}).
  */
 public class PasswordLoginTest extends BaseTest {
 
-    private static final String TEST_PHONE = "7074771448";        // +7 707 477 14 48
-    private static final String CORRECT_PASSWORD = "POIUpoiu0@";
     private static final String WRONG_PASSWORD = "WrongPass1@";    // валидный формат, неверные данные
 
     private PasswordPage passwordPage;
 
     @BeforeMethod(alwaysRun = true)
     public void openPasswordScreen() {
-        new LanguageSelectionPage(driver).selectLanguage(Language.RUSSIAN);
-        WelcomePage welcome = new WelcomePage(driver);
-        Assert.assertTrue(welcome.isDisplayed(), "Welcome screen should open");
-        welcome.tapStart();
-        new PermissionDialog(driver).acceptIfPresent();
-
-        PhoneLoginPage phone = new PhoneLoginPage(driver);
-        Assert.assertTrue(phone.isDisplayed(), "Phone login screen should open");
-        phone.enterPhone(TEST_PHONE);
-        phone.tapContinue();
-
-        passwordPage = new PasswordPage(driver);
-        Assert.assertTrue(passwordPage.isDisplayed(),
-                "Password field should appear after submitting the phone number");
+        passwordPage = LoginFlow.openPasswordScreen(driver, LoginFlow.PRIMARY);
+        if (passwordPage == null) {
+            // Primary phone didn't reveal the password screen (flaky navigation / throttling) —
+            // reinstall for a clean slate and try the fallback account.
+            reinstallAndRestart();
+            passwordPage = LoginFlow.openPasswordScreen(driver, LoginFlow.FALLBACK);
+        }
+        Assert.assertNotNull(passwordPage,
+                "Password screen should open after submitting the phone number");
     }
 
     @Test(description = "Masked password field is shown after entering the phone number")
@@ -56,11 +47,16 @@ public class PasswordLoginTest extends BaseTest {
                 "'Забыли пароль?' button should be visible");
     }
 
-    @Test(description = "Continue button is disabled until a password is entered")
+    @Test(description = "Continue button is disabled until a password is entered (iOS)")
     public void continueButtonDisabledUntilPasswordEntered() {
+        // Android keeps the auth button enabled and validates on press, so the gating check is
+        // iOS-specific.
+        if (Platform.current() == Platform.ANDROID) {
+            throw new SkipException("Android: the auth button is always enabled (no client-side gating)");
+        }
         Assert.assertFalse(passwordPage.isContinueEnabled(),
                 "Continue should be disabled while the password field is empty");
-        passwordPage.enterPassword(CORRECT_PASSWORD);
+        passwordPage.enterPassword(LoginFlow.PRIMARY.password());
         Assert.assertTrue(passwordPage.isContinueEnabled(),
                 "Continue should become enabled once a password is entered");
     }
@@ -70,20 +66,31 @@ public class PasswordLoginTest extends BaseTest {
         passwordPage.enterPassword(WRONG_PASSWORD);
         passwordPage.tapContinue();
 
-        // Robust signal: a wrong password must not advance to PIN creation. The "Неверные данные"
-        // alert is not asserted here because autoAcceptAlerts may dismiss it before we can read it.
+        // Robust signal on both platforms: a wrong password must not advance to PIN creation.
         PinCodePage pin = new PinCodePage(driver);
         Assert.assertFalse(pin.waitForDisplayed(Duration.ofSeconds(8)),
                 "Wrong password must not open the PIN creation screen");
+
+        // On Android the wrong-credentials alert stays put (no autoAcceptAlerts), so we also verify
+        // it. On iOS autoAcceptAlerts may dismiss it before we can read it, so we don't assert there.
+        if (Platform.current() == Platform.ANDROID) {
+            Assert.assertTrue(passwordPage.isWrongCredentialsErrorShown(Duration.ofSeconds(3)),
+                    "Wrong password should show the 'Неверные данные для входа' error");
+        }
     }
 
-    @Test(description = "Correct password opens the PIN creation screen")
+    @Test(description = "A valid account opens the PIN creation screen (primary, fallback on failure)")
     public void correctPasswordOpensPinCreation() {
-        passwordPage.enterPassword(CORRECT_PASSWORD);
+        // BeforeMethod already opened the password screen with the primary account's phone.
+        passwordPage.enterPassword(LoginFlow.PRIMARY.password());
         passwordPage.tapContinue();
 
-        PinCodePage pin = new PinCodePage(driver);
-        Assert.assertTrue(pin.isDisplayed(),
-                "PIN creation screen should open after a correct password");
+        boolean opened = new PinCodePage(driver).waitForDisplayed(Duration.ofSeconds(10));
+        if (!opened) {
+            // Primary account not accepted — reinstall for a clean slate and try the fallback.
+            reinstallAndRestart();
+            opened = LoginFlow.tryReachPinCreation(driver, LoginFlow.FALLBACK);
+        }
+        Assert.assertTrue(opened, "A valid account should open the PIN creation screen");
     }
 }

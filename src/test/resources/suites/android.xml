@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
-<suite name="Android Suite" verbose="1">
+<suite name="Android Suite" verbose="1" configfailurepolicy="continue">
     <listeners>
         <listener class-name="core.RetryListener"/>
     </listeners>
@@ -14,6 +14,8 @@
             <class name="tests.PhoneLoginTest"/>            <!-- ввод номера телефона 5 кейс -->
             <class name="tests.AgreementLinkTest"/>         <!-- ссылка "условиями Банка" + bottom sheet 6 кейс -->
             <class name="tests.TermsDocumentTest"/>         <!-- PDF viewer документов 6 кейс -->
+            <class name="tests.PasswordLoginTest"/>         <!-- вход по паролю 5 кейс (1 iOS-only skip) -->
+            <class name="tests.PinCodeTest"/>               <!-- экран создания PIN 2 кейс -->
         </classes>
     </test>
 </suite>
