@@ -97,6 +97,62 @@ curl -s http://127.0.0.1:4723/status
 
 ---
 
+## Appium Inspector (снятие дампов экранов)
+
+Для построения локаторов под новые экраны удобно смотреть дерево элементов в
+[Appium Inspector](https://github.com/appium/appium-inspector). Подключение:
+**Remote Host** `127.0.0.1`, **Port** `4723`, **Path** `/` (Appium запущен с
+`--base-path /`), затем вставить capabilities ниже в **Desired Capabilities (JSON)**.
+Снятые дампы сохраняем в `inspector-dumps/<platform>/`.
+
+### iOS
+
+```json
+{
+  "platformName": "iOS",
+  "appium:automationName": "XCUITest",
+  "appium:deviceName": "iPhone 17",
+  "appium:platformVersion": "26.5",
+  "appium:bundleId": "ibn.bnk.kz",
+  "appium:app": "/Users/guldana/Documents/mobile-tests/apps/ios/BNK.app",
+  "appium:noReset": true,
+  "appium:fullReset": false,
+  "appium:wdaLaunchTimeout": 120000,
+  "appium:wdaConnectionTimeout": 120000,
+  "appium:autoAcceptAlerts": true
+}
+```
+
+> `autoAcceptAlerts: true` авто-принимает системные алерты (геолокация на старте). Если нужно
+> поймать прикладной алерт (например «Неверные данные для входа»), временно поставь `false`.
+
+### Android
+
+```json
+{
+  "platformName": "Android",
+  "appium:automationName": "UiAutomator2",
+  "appium:deviceName": "Android_14",
+  "appium:platformVersion": "14",
+  "appium:appPackage": "kz.bnk.app.dev",
+  "appium:appActivity": "kz.crystalspring.bnk.ui.activities.splash.SplashActivity",
+  "appium:app": "/Users/guldana/Documents/mobile-tests/apps/android/app-dev-debug.apk",
+  "appium:noReset": false,
+  "appium:fullReset": true,
+  "appium:adbExecTimeout": 120000,
+  "appium:appWaitDuration": 60000,
+  "appium:uiautomator2ServerLaunchTimeout": 180000,
+  "appium:uiautomator2ServerInstallTimeout": 120000,
+  "appium:androidInstallTimeout": 240000
+}
+```
+
+> Пути к сборкам абсолютные — поправь под свою машину, если репозиторий лежит в другом каталоге.
+> Если устройство не подхватывается по `deviceName`, добавь `"appium:udid"` (для эмулятора —
+> например `"emulator-5554"`, узнать: `adb devices`).
+
+---
+
 ## 2. Запуск тестов
 
 Платформа выбирается флагом `-Dplatform` (по умолчанию `android`). Он определяет
