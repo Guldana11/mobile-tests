@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<AppiumAUT>
+    <XCUIElementTypeApplication type="XCUIElementTypeApplication" name="BNK Test" label="BNK Test" enabled="true" visible="true" accessible="false" x="0" y="0" width="402" height="874" index="0" traits="" processId="32597" bundleId="ibn.bnk.kz">
+        <XCUIElementTypeWindow type="XCUIElementTypeWindow" enabled="true" visible="true" accessible="false" x="0" y="0" width="402" height="874" index="0" traits="">
+            <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="true" accessible="false" x="0" y="0" width="402" height="874" index="0" traits="">
+                <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="true" accessible="false" x="0" y="0" width="402" height="874" index="0" traits="">
+                    <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="true" accessible="false" x="0" y="0" width="402" height="874" index="0" traits="">
+                        <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="true" accessible="false" x="0" y="0" width="402" height="874" index="0" traits="">
+                            <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="true" accessible="false" x="0" y="62" width="402" height="778" index="0" traits=""/>
+                            <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="true" accessible="false" x="0" y="0" width="402" height="874" index="1" traits="">
+                                <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="true" accessible="false" x="0" y="0" width="402" height="874" index="0" traits="">
+                                    <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="true" accessible="false" x="0" y="0" width="402" height="874" index="0" traits="">
+                                        <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="true" accessible="false" x="0" y="0" width="402" height="874" index="0" traits="">
+                                            <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="true" accessible="false" x="0" y="0" width="402" height="874" index="0" traits="">
+                                                <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="Создайте код входа" name="Создайте код входа" label="Создайте код входа" enabled="true" visible="true" accessible="true" x="78" y="170" width="246" height="30" index="0" traits="StaticText"/>
+                                                <XCUIElementTypeButton type="XCUIElementTypeButton" name="1" label="1" enabled="true" visible="true" accessible="true" x="19" y="490" width="100" height="72" index="1" traits="Button"/>
+                                                <XCUIElementTypeButton type="XCUIElementTypeButton" name="2" label="2" enabled="true" visible="true" accessible="true" x="151" y="490" width="100" height="72" index="2" traits="Button"/>
+                                                <XCUIElementTypeButton type="XCUIElementTypeButton" name="3" label="3" enabled="true" visible="true" accessible="true" x="283" y="490" width="100" height="72" index="3" traits="Button"/>
+                                                <XCUIElementTypeButton type="XCUIElementTypeButton" name="4" label="4" enabled="true" visible="true" accessible="true" x="19" y="578" width="100" height="72" index="4" traits="Button"/>
+                                                <XCUIElementTypeButton type="XCUIElementTypeButton" name="5" label="5" enabled="true" visible="true" accessible="true" x="151" y="578" width="100" height="72" index="5" traits="Button"/>
+                                                <XCUIElementTypeButton type="XCUIElementTypeButton" name="6" label="6" enabled="true" visible="true" accessible="true" x="283" y="578" width="100" height="72" index="6" traits="Button"/>
+                                                <XCUIElementTypeButton type="XCUIElementTypeButton" name="7" label="7" enabled="true" visible="true" accessible="true" x="19" y="666" width="100" height="72" index="7" traits="Button"/>
+                                                <XCUIElementTypeButton type="XCUIElementTypeButton" name="8" label="8" enabled="true" visible="true" accessible="true" x="151" y="666" width="100" height="72" index="8" traits="Button"/>
+                                                <XCUIElementTypeButton type="XCUIElementTypeButton" name="9" label="9" enabled="true" visible="true" accessible="true" x="283" y="666" width="100" height="72" index="9" traits="Button"/>
+                                                <XCUIElementTypeButton type="XCUIElementTypeButton" enabled="true" visible="true" accessible="true" x="19" y="754" width="100" height="72" index="10" traits="Button"/>
+                                                <XCUIElementTypeButton type="XCUIElementTypeButton" name="0" label="0" enabled="true" visible="true" accessible="true" x="151" y="754" width="100" height="72" index="11" traits="Button"/>
+                                                <XCUIElementTypeButton type="XCUIElementTypeButton" name="Common/backspace" label="Common/backspace" enabled="true" visible="true" accessible="true" x="283" y="754" width="100" height="72" index="12" traits="Button"/>
+                                            </XCUIElementTypeOther>
+                                        </XCUIElementTypeOther>
+                                    </XCUIElementTypeOther>
+                                </XCUIElementTypeOther>
+                            </XCUIElementTypeOther>
+                        </XCUIElementTypeOther>
+                    </XCUIElementTypeOther>
+                </XCUIElementTypeOther>
+            </XCUIElementTypeOther>
+        </XCUIElementTypeWindow>
+        <XCUIElementTypeWindow type="XCUIElementTypeWindow" enabled="true" visible="false" accessible="false" x="0" y="0" width="402" height="874" index="1" traits="">
+            <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="false" accessible="false" x="0" y="0" width="402" height="874" index="0" traits="">
+                <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="false" accessible="false" x="0" y="0" width="402" height="874" index="0" traits=""/>
+            </XCUIElementTypeOther>
+        </XCUIElementTypeWindow>
+    </XCUIElementTypeApplication>
+</AppiumAUT>

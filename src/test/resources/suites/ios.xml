@@ -14,6 +14,8 @@
             <class name="tests.PhoneLoginTest"/>          <!-- 5 кейсов: ввод номера телефона -->
             <class name="tests.AgreementLinkTest"/>       <!-- 6 кейсов: ссылка + bottom sheet -->
             <class name="tests.TermsDocumentTest"/>       <!-- 6 кейсов: PDF viewer (Accept — Android-only) -->
+            <class name="tests.PasswordLoginTest"/>       <!-- 5 кейсов: вход по паролю -->
+            <class name="tests.PinCodeTest"/>             <!-- 2 кейса: экран создания PIN -->
         </classes>
     </test>
 </suite>
