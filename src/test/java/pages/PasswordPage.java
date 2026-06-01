@@ -23,6 +23,7 @@ public class PasswordPage extends BasePage {
     private static final String ANDROID_PASSWORD_FIELD = "kz.bnk.app.dev:id/et_pwd";
     private static final String ANDROID_AUTH_BUTTON = "kz.bnk.app.dev:id/btn";
     private static final String ANDROID_FORGOT_PASSWORD = "kz.bnk.app.dev:id/forgot_password";
+    private static final String ANDROID_LOADING = "kz.bnk.app.dev:id/lav_loading";
 
     private static final String IOS_FORGOT_PASSWORD = "Забыли пароль?";
     private static final String IOS_CONTINUE = "Продолжить";
@@ -102,6 +103,26 @@ public class PasswordPage extends BasePage {
         return !driver.findElements(forgotPasswordLocator()).isEmpty();
     }
 
+    public void tapForgotPassword() {
+        driver.findElement(forgotPasswordLocator()).click();
+    }
+
+    /**
+     * True if the password-recovery loading overlay (a Lottie spinner, id {@code lav_loading})
+     * appears after tapping "Забыли пароль?". In the dev/test environment the recovery screen itself
+     * never finishes loading (backend-dependent), so the overlay is the only stable signal that the
+     * recovery flow was triggered. Android-only — the iOS recovery flow has not been characterised.
+     */
+    public boolean isRecoveryLoadingShown(Duration timeout) {
+        try {
+            new WebDriverWait(driver, timeout).until(
+                    ExpectedConditions.visibilityOfElementLocated(recoveryLoadingLocator()));
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     public boolean isWrongCredentialsErrorShown(Duration timeout) {
         try {
             new WebDriverWait(driver, timeout).until(
@@ -148,6 +169,11 @@ public class PasswordPage extends BasePage {
             case ANDROID -> AppiumBy.id(ANDROID_FORGOT_PASSWORD);
             case IOS -> AppiumBy.accessibilityId(IOS_FORGOT_PASSWORD);
         };
+    }
+
+    // Android only — the recovery loading overlay test is gated to Android (iOS flow not characterised).
+    private By recoveryLoadingLocator() {
+        return AppiumBy.id(ANDROID_LOADING);
     }
 
     private By wrongCredentialsLocator() {

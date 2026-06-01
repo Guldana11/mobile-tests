@@ -15,6 +15,7 @@
             <class name="tests.AgreementLinkTest"/>         <!-- ссылка "условиями Банка" + bottom sheet 6 кейс -->
             <class name="tests.TermsDocumentTest"/>         <!-- PDF viewer документов 6 кейс -->
             <class name="tests.PasswordLoginTest"/>         <!-- вход по паролю 5 кейс (1 iOS-only skip) -->
+            <class name="tests.ForgotPasswordTest"/>        <!-- "Забыли пароль?" — оверлей загрузки 1 кейс (iOS skip) -->
             <class name="tests.PinCodeTest"/>               <!-- экран создания PIN 2 кейс -->
         </classes>
     </test>
