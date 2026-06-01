@@ -74,8 +74,9 @@ public class PasswordLoginTest extends BaseTest {
         // On Android the wrong-credentials alert stays put (no autoAcceptAlerts), so we also verify
         // it. On iOS autoAcceptAlerts may dismiss it before we can read it, so we don't assert there.
         if (Platform.current() == Platform.ANDROID) {
-            Assert.assertTrue(passwordPage.isWrongCredentialsErrorShown(Duration.ofSeconds(3)),
-                    "Wrong password should show the 'Неверные данные для входа' error");
+            Assert.assertTrue(passwordPage.isLoginRejectedErrorShown(Duration.ofSeconds(3)),
+                    "Wrong password should show a rejection alert "
+                            + "('Неверные данные для входа' or 'Вход заблокирован …')");
         }
     }
 

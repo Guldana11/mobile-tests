@@ -28,6 +28,10 @@ public class PasswordPage extends BasePage {
     private static final String IOS_CONTINUE = "Продолжить";
 
     private static final String WRONG_CREDENTIALS_TEXT = "Неверные данные для входа";
+    // After several wrong attempts the server locks the account, swapping the wrong-credentials
+    // alert for "Вход заблокирован до [dd.MM.yyyy HH:mm:ss]". The timestamp is dynamic, so match the
+    // stable prefix only.
+    private static final String LOGIN_BLOCKED_PREFIX = "Вход заблокирован";
 
     public PasswordPage(AppiumDriver driver) {
         super(driver);
@@ -54,6 +58,38 @@ public class PasswordPage extends BasePage {
         field.sendKeys(password);
     }
 
+    /**
+     * iOS only: the simulator's software keyboard defaults to Kazakh/Russian (Cyrillic), which has
+     * no Latin letters, so a Latin password types as garbage. Cycle the globe ("Следующая
+     * клавиатура") until a Latin-letter key appears (the English layout). Implicit wait is dropped
+     * during the loop so the "no Latin yet" checks don't each block for the full implicit timeout,
+     * and a short pause lets the keyboard redraw after each switch. Android types via UiAutomator2
+     * directly, so no switch is needed. Requires an English keyboard to be installed in the sim.
+     */
+    private void ensureLatinKeyboard() {
+        if (Platform.current() != Platform.IOS) return;
+        By latinKey = AppiumBy.iOSNsPredicateString(
+                "type == 'XCUIElementTypeKey' AND name MATCHES '[a-zA-Z]'");
+        By globe = AppiumBy.accessibilityId("Следующая клавиатура");
+        driver.manage().timeouts().implicitlyWait(Duration.ZERO);
+        try {
+            for (int i = 0; i < 4; i++) {
+                if (!driver.findElements(latinKey).isEmpty()) return;
+                var keys = driver.findElements(globe);
+                if (keys.isEmpty()) return;
+                keys.get(0).click();
+                try {
+                    Thread.sleep(400);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    return;
+                }
+            }
+        } finally {
+            driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
+        }
+    }
+
     public void tapContinue() {
         driver.findElement(continueLocator()).click();
     }
@@ -77,20 +113,19 @@ public class PasswordPage extends BasePage {
     }
 
     /**
-     * iOS only: the simulator's on-screen keyboard defaults to Kazakh/Russian (Cyrillic), which has
-     * no Latin letters — typing a Latin password over it drops every letter. Cycle the globe key to
-     * the English layout (it follows Russian in the rotation) so sendKeys can type the password.
-     * Android types via UiAutomator2 directly, so no switch is needed.
+     * True if the app surfaced a "login rejected" alert: either "Неверные данные для входа" (wrong
+     * password) or "Вход заблокирован до [...]" (the server lock that kicks in after repeated wrong
+     * attempts). Both confirm the credentials did not log in, so the wrong-password test accepts
+     * either rather than flaking once an over-tested account gets locked.
      */
-    private void ensureLatinKeyboard() {
-        if (Platform.current() != Platform.IOS) return;
-        By latinKey = AppiumBy.iOSNsPredicateString("type == 'XCUIElementTypeKey' AND name == 'q'");
-        By nextKeyboard = AppiumBy.accessibilityId("Следующая клавиатура");
-        for (int i = 0; i < 5; i++) {
-            if (!driver.findElements(latinKey).isEmpty()) return;
-            var globe = driver.findElements(nextKeyboard);
-            if (globe.isEmpty()) return;
-            globe.get(0).click();
+    public boolean isLoginRejectedErrorShown(Duration timeout) {
+        try {
+            new WebDriverWait(driver, timeout).until(d ->
+                    !d.findElements(wrongCredentialsLocator()).isEmpty()
+                            || !d.findElements(loginBlockedLocator()).isEmpty());
+            return true;
+        } catch (Exception e) {
+            return false;
         }
     }
 
@@ -120,6 +155,15 @@ public class PasswordPage extends BasePage {
             case ANDROID -> AppiumBy.androidUIAutomator(
                     "new UiSelector().text(\"" + WRONG_CREDENTIALS_TEXT + "\")");
             case IOS -> AppiumBy.accessibilityId(WRONG_CREDENTIALS_TEXT);
+        };
+    }
+
+    private By loginBlockedLocator() {
+        return switch (Platform.current()) {
+            case ANDROID -> AppiumBy.androidUIAutomator(
+                    "new UiSelector().textStartsWith(\"" + LOGIN_BLOCKED_PREFIX + "\")");
+            case IOS -> AppiumBy.iOSNsPredicateString(
+                    "label BEGINSWITH '" + LOGIN_BLOCKED_PREFIX + "'");
         };
     }
 }
