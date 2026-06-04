@@ -17,6 +17,9 @@ import java.time.Duration;
 public class PinCodePage extends BasePage {
 
     private static final String TITLE = "Создайте код входа";
+    // After 4 digits are entered on the create step the SAME screen swaps its title to ask for the
+    // code again (the confirmation step).
+    private static final String CONFIRM_TITLE = "Введите код еще раз";
 
     private static final String ANDROID_TITLE_ID = "kz.bnk.app.dev:id/tv_title";
     private static final String ANDROID_DIGIT_PREFIX = "kz.bnk.app.dev:id/btn";
@@ -59,11 +62,39 @@ public class PinCodePage extends BasePage {
         }
     }
 
+    public void tapBackspace() {
+        driver.findElement(backspaceLocator()).click();
+    }
+
+    /** True if the screen is still on the create step ("Создайте код входа"). */
+    public boolean isCreateStepDisplayed() {
+        return !driver.findElements(titleLocator()).isEmpty();
+    }
+
+    /** Waits for the confirmation step ("Введите код еще раз") to appear after 4 digits. */
+    public boolean waitForConfirmStep(Duration timeout) {
+        try {
+            new WebDriverWait(driver, timeout).until(
+                    ExpectedConditions.visibilityOfElementLocated(confirmTitleLocator()));
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     private By titleLocator() {
         return switch (Platform.current()) {
             case ANDROID -> AppiumBy.androidUIAutomator(
                     "new UiSelector().resourceId(\"" + ANDROID_TITLE_ID + "\").text(\"" + TITLE + "\")");
             case IOS -> AppiumBy.accessibilityId(TITLE);
+        };
+    }
+
+    private By confirmTitleLocator() {
+        return switch (Platform.current()) {
+            case ANDROID -> AppiumBy.androidUIAutomator(
+                    "new UiSelector().resourceId(\"" + ANDROID_TITLE_ID + "\").text(\"" + CONFIRM_TITLE + "\")");
+            case IOS -> AppiumBy.accessibilityId(CONFIRM_TITLE);
         };
     }
 
