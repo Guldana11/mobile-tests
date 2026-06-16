@@ -51,6 +51,28 @@ public class PermissionDialog extends BasePage {
         return driver.findElement(AppiumBy.id(MESSAGE_ID)).getText();
     }
 
+    /**
+     * True if a camera/record-video permission dialog appears within {@code timeout} — the signal
+     * that video identification was triggered (the recovery flow requests this right after a valid
+     * SMS code). Matches the message mentioning video/record/pictures (system dialog text, English on
+     * our emulator). Android-only.
+     */
+    public boolean isVideoRecordingRequestShown(Duration timeout) {
+        requireAndroid();
+        try {
+            new WebDriverWait(driver, timeout).until(d -> {
+                var msgs = d.findElements(AppiumBy.id(MESSAGE_ID));
+                if (msgs.isEmpty()) return false;
+                String m = msgs.get(0).getText().toLowerCase();
+                return m.contains("video") || m.contains("record") || m.contains("pictures")
+                        || m.contains("видео") || m.contains("камер");
+            });
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     public boolean isPreciseSelectedByDefault() {
         requireAndroid();
         return Boolean.parseBoolean(
