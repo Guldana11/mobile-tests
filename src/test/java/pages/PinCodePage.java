@@ -71,6 +71,18 @@ public class PinCodePage extends BasePage {
         return !driver.findElements(titleLocator()).isEmpty();
     }
 
+    /**
+     * Completes the full PIN setup: enters {@code pin} on the create step, waits for the confirmation
+     * step, then re-enters the same {@code pin}. Returns false if the confirmation step never appears.
+     * After this the app advances to the main screen (behind onboarding prompts on iOS).
+     */
+    public boolean completeSetup(String pin) {
+        enterPin(pin);
+        if (!waitForConfirmStep(Duration.ofSeconds(10))) return false;
+        enterPin(pin);
+        return true;
+    }
+
     /** Waits for the confirmation step ("Введите код еще раз") to appear after 4 digits. */
     public boolean waitForConfirmStep(Duration timeout) {
         try {

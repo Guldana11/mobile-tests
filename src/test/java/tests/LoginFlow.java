@@ -3,6 +3,7 @@ package tests;
 import io.appium.java_client.AppiumDriver;
 import pages.LanguageSelectionPage;
 import pages.LanguageSelectionPage.Language;
+import pages.MainScreenPage;
 import pages.PasswordPage;
 import pages.PermissionDialog;
 import pages.PhoneLoginPage;
@@ -19,6 +20,9 @@ import java.time.Duration;
 public final class LoginFlow {
 
     public record Account(String phone, String password) {}
+
+    // Fixed PIN used when a test needs to get past PIN setup to the main screen.
+    public static final String PIN = "1234";
 
     // Phones are entered without the +7 prefix already shown in the field.
     public static final Account PRIMARY = new Account("7074771448", "POIUpoiu0@");
@@ -57,5 +61,18 @@ public final class LoginFlow {
         password.enterPassword(account.password());
         password.tapContinue();
         return new PinCodePage(driver).waitForDisplayed(Duration.ofSeconds(10));
+    }
+
+    /**
+     * Full login through to the main (home) screen: password login → PIN setup ({@link #PIN}) →
+     * dismiss the post-PIN onboarding prompts. Returns the open {@link MainScreenPage}, or
+     * {@code null} if PIN creation was not reached or the main screen never appeared.
+     */
+    public static MainScreenPage reachMainScreen(AppiumDriver driver, Account account) {
+        if (!tryReachPinCreation(driver, account)) return null;
+        if (!new PinCodePage(driver).completeSetup(PIN)) return null;
+        MainScreenPage main = new MainScreenPage(driver);
+        main.dismissOnboardingPrompts();
+        return main.isDisplayed() ? main : null;
     }
 }
