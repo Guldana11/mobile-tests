@@ -16,6 +16,7 @@
             <class name="tests.TermsDocumentTest"/>       <!-- 6 кейсов: PDF viewer (Accept — Android-only) -->
             <class name="tests.PasswordLoginTest"/>       <!-- 5 кейсов: вход по паролю -->
             <class name="tests.ForgotPasswordTest"/>      <!-- "Забыли пароль?" — iOS skip (флоу не охарактеризован) -->
+            <class name="tests.PasswordRecoveryTest"/>    <!-- 2 кейса: SMS-код → видеоидентификация -->
             <class name="tests.PinCodeTest"/>             <!-- 2 кейса: экран создания PIN -->
         </classes>
     </test>
