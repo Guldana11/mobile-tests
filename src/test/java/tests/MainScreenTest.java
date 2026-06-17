@@ -11,20 +11,36 @@ import pages.MainScreenPage;
  * создание и подтверждение PIN-кода → закрытие онбординг-промптов (Face ID, уведомления на iOS).
  * Вход выполняется основным аккаунтом с откатом на запасной (см. {@link LoginFlow}). Имя в
  * приветствии зависит от аккаунта, поэтому проверяется только префикс «Привет,».
+ *
+ * <p>Все кейсы только ЧИТАЮТ один и тот же экран, поэтому до главного экрана доходим ОДИН раз на
+ * класс ({@link #resetBeforeEachMethod()} = false) и переиспользуем сессию между кейсами — без
+ * переустановки приложения на каждый кейс (быстрее и не нагружает эмулятор). Чтобы кейс со скроллом
+ * не ломал остальные, перед каждым кейсом позиция скролла нормализуется к началу.
  */
 public class MainScreenTest extends BaseTest {
 
     private MainScreenPage mainScreen;
 
+    @Override
+    protected boolean resetBeforeEachMethod() {
+        return false;
+    }
+
     @BeforeMethod(alwaysRun = true)
-    public void openMainScreen() {
-        mainScreen = LoginFlow.reachMainScreen(driver, LoginFlow.PRIMARY);
+    public void ensureMainScreen() {
         if (mainScreen == null) {
-            reinstallAndRestart();
-            mainScreen = LoginFlow.reachMainScreen(driver, LoginFlow.FALLBACK);
+            // Первый кейс класса: один раз доводим до главного экрана.
+            mainScreen = LoginFlow.reachMainScreen(driver, LoginFlow.PRIMARY);
+            if (mainScreen == null) {
+                reinstallAndRestart();
+                mainScreen = LoginFlow.reachMainScreen(driver, LoginFlow.FALLBACK);
+            }
+            Assert.assertNotNull(mainScreen,
+                    "Main screen must open after completing login and PIN setup");
+        } else {
+            // Переиспользуемая сессия: вернуть список к началу, чтобы кейсы не зависели от порядка.
+            mainScreen.scrollToTop();
         }
-        Assert.assertNotNull(mainScreen,
-                "Main screen must open after completing login and PIN setup");
     }
 
     @Test(description = "Completing PIN setup opens the main screen with its bottom tabs")

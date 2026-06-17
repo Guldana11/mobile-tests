@@ -6,6 +6,7 @@ import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebElement;
 import org.testng.ITestResult;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 
@@ -28,8 +29,26 @@ public abstract class BaseTest {
     private static final String ANDROID_PACKAGE = "kz.bnk.app.dev";
     private static final String IOS_BUNDLE_ID = "ibn.bnk.kz";
 
+    /**
+     * Whether to reinstall the app and start a fresh session before EVERY test method (the default —
+     * maximum isolation). A class whose cases only READ the same already-open screen can override this
+     * to {@code false}: the app is then installed and navigated once per class and the session is
+     * reused across its methods (far faster and much easier on the emulator). Such a class is
+     * responsible for not letting one case leave state that breaks another (e.g. restoring scroll
+     * position) — see {@code MainScreenTest}.
+     */
+    protected boolean resetBeforeEachMethod() {
+        return true;
+    }
+
     @BeforeMethod(alwaysRun = true)
     public void setUp() {
+        // Per-class mode (resetBeforeEachMethod()==false): after the first method the driver is kept,
+        // so reuse it instead of reinstalling the app.
+        if (driver != null) {
+            dismissAndroidAnrDialogIfPresent();
+            return;
+        }
         // Force-uninstall before driver creation. Appium's fullReset alone doesn't reliably
         // reinstall this app — we have to remove it ourselves. Uninstalling does NOT affect
         // the Appium servers (UiAutomator2 / WebDriverAgent live in their own packages).
@@ -116,6 +135,20 @@ public abstract class BaseTest {
                 savePageSourceDump(result);
             }
         } finally {
+            // In per-class mode keep the session alive for the next method; it is torn down in
+            // tearDownClass(). The default (reset-per-method) quits here so the next method reinstalls.
+            if (resetBeforeEachMethod()) {
+                driver.quit();
+                driver = null;
+            }
+        }
+    }
+
+    @AfterClass(alwaysRun = true)
+    public void tearDownClass() {
+        // Tears down the session kept alive across a per-class run. No-op for reset-per-method classes
+        // (their driver is already null by here).
+        if (driver != null) {
             driver.quit();
             driver = null;
         }

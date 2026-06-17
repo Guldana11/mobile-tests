@@ -36,8 +36,10 @@ public class MainScreenPage extends BasePage {
     // so it doubles as the "did the list scroll" marker.
     private static final String BOTTOM_ACTION = "Открыть депозит";
 
-    private static final String IOS_TAB_BAR = "Панель вкладок";
-    private static final String IOS_LATER_BUTTON = "Позже";
+    private static final String LATER_BUTTON = "Позже";
+
+    private static final String ANDROID_GREETING_ID = "kz.bnk.app.dev:id/tv_greetings";
+    private static final String ANDROID_AMOUNT_ID = "kz.bnk.app.dev:id/tv_amount";
 
     public MainScreenPage(AppiumDriver driver) {
         super(driver);
@@ -81,20 +83,37 @@ public class MainScreenPage extends BasePage {
      */
     public boolean isBottomActionVisible() {
         List<WebElement> els = driver.findElements(bottomActionLocator());
-        return !els.isEmpty() && "true".equals(els.get(0).getAttribute("visible"));
+        if (els.isEmpty()) return false;
+        return switch (Platform.current()) {
+            // iOS keeps off-screen nodes in the tree with visible=false; Android renders only
+            // on/near-screen nodes, so presence already means it scrolled into view.
+            case IOS -> "true".equals(els.get(0).getAttribute("visible"));
+            case ANDROID -> els.get(0).isDisplayed();
+        };
     }
 
     /** Scrolls the account list down with two upward swipes to bring the bottom actions into view. */
     public void scrollAccountsDown() {
-        swipeUp();
-        swipeUp();
+        verticalSwipe(0.80, 0.30);
+        verticalSwipe(0.80, 0.30);
     }
 
-    private void swipeUp() {
+    /**
+     * Scrolls the account list back to the top. Used to normalise scroll position between cases when
+     * the session is shared across a class (see {@code MainScreenTest}).
+     */
+    public void scrollToTop() {
+        verticalSwipe(0.30, 0.80);
+        verticalSwipe(0.30, 0.80);
+    }
+
+    // Swipes vertically from startFrac to endFrac of the screen height (fractions, 0=top..1=bottom).
+    // A start below the end scrolls the content up (toward the list bottom); the reverse scrolls up.
+    private void verticalSwipe(double startFrac, double endFrac) {
         Dimension size = driver.manage().window().getSize();
         int x = size.getWidth() / 2;
-        int startY = (int) (size.getHeight() * 0.80);
-        int endY = (int) (size.getHeight() * 0.30);
+        int startY = (int) (size.getHeight() * startFrac);
+        int endY = (int) (size.getHeight() * endFrac);
         PointerInput finger = new PointerInput(PointerInput.Kind.TOUCH, "finger");
         Sequence swipe = new Sequence(finger, 1)
                 .addAction(finger.createPointerMove(Duration.ZERO, PointerInput.Origin.viewport(), x, startY))
@@ -130,17 +149,16 @@ public class MainScreenPage extends BasePage {
     private By tabLocator(String label) {
         return switch (Platform.current()) {
             case IOS -> AppiumBy.accessibilityId(label);
-            // Android home-screen locators are filled in during the Android phase.
-            case ANDROID -> throw new UnsupportedOperationException(
-                    "Android main screen not characterised yet");
+            // Android bottom-nav items expose the tab label as their content-description.
+            case ANDROID -> AppiumBy.androidUIAutomator(
+                    "new UiSelector().description(\"" + label + "\")");
         };
     }
 
     private By greetingLocator() {
         return switch (Platform.current()) {
             case IOS -> AppiumBy.iOSNsPredicateString("label BEGINSWITH '" + GREETING_PREFIX + "'");
-            case ANDROID -> throw new UnsupportedOperationException(
-                    "Android main screen not characterised yet");
+            case ANDROID -> AppiumBy.id(ANDROID_GREETING_ID);
         };
     }
 
@@ -149,24 +167,23 @@ public class MainScreenPage extends BasePage {
     private By balanceLocator() {
         return switch (Platform.current()) {
             case IOS -> AppiumBy.iOSNsPredicateString("label CONTAINS '₸' OR label CONTAINS '$'");
-            case ANDROID -> throw new UnsupportedOperationException(
-                    "Android main screen not characterised yet");
+            case ANDROID -> AppiumBy.id(ANDROID_AMOUNT_ID);
         };
     }
 
     private By bottomActionLocator() {
         return switch (Platform.current()) {
             case IOS -> AppiumBy.accessibilityId(BOTTOM_ACTION);
-            case ANDROID -> throw new UnsupportedOperationException(
-                    "Android main screen not characterised yet");
+            case ANDROID -> AppiumBy.androidUIAutomator(
+                    "new UiSelector().text(\"" + BOTTOM_ACTION + "\")");
         };
     }
 
     private By laterButtonLocator() {
         return switch (Platform.current()) {
-            case IOS -> AppiumBy.accessibilityId(IOS_LATER_BUTTON);
-            case ANDROID -> throw new UnsupportedOperationException(
-                    "Android main screen not characterised yet");
+            case IOS -> AppiumBy.accessibilityId(LATER_BUTTON);
+            case ANDROID -> AppiumBy.androidUIAutomator(
+                    "new UiSelector().text(\"" + LATER_BUTTON + "\")");
         };
     }
 }

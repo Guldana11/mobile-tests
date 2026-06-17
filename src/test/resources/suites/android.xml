@@ -18,6 +18,7 @@
             <class name="tests.ForgotPasswordTest"/>        <!-- "Забыли пароль?" — оверлей загрузки 1 кейс (iOS skip) -->
             <class name="tests.PasswordRecoveryTest"/>      <!-- восстановление: SMS-код → видеоидентификация 2 кейс (iOS skip) -->
             <class name="tests.PinCodeTest"/>               <!-- экран создания PIN 2 кейс -->
+            <class name="tests.MainScreenTest"/>            <!-- PIN setup → главный экран: вкладки, приветствие, счета, скролл 4 кейс -->
         </classes>
     </test>
 </suite>
