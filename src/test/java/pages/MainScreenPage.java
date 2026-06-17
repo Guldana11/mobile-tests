@@ -5,6 +5,7 @@ import io.appium.java_client.AppiumBy;
 import io.appium.java_client.AppiumDriver;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
+import org.openqa.selenium.Rectangle;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.PointerInput;
 import org.openqa.selenium.interactions.Sequence;
@@ -36,7 +37,21 @@ public class MainScreenPage extends BasePage {
     // so it doubles as the "did the list scroll" marker.
     private static final String BOTTOM_ACTION = "Открыть депозит";
 
+    // A menu item unique to the Quick-menu tab (absent on Home/Products), identical on both platforms.
+    private static final String QUICK_MENU_MARKER = "Перевод в другой банк";
+    // Android marks the active bottom-nav item as selected; used to confirm the Products tab opened.
+    private static final String ANDROID_NAV_PRODUCTS_ID = "kz.bnk.app.dev:id/navigation_open_product";
+
+    // The header burger opens a side menu (drawer) whose unique item is "Служба поддержки".
+    private static final String SIDE_MENU_MARKER = "Служба поддержки";
+    private static final String IOS_BURGER = "Home/menu";
+    private static final String IOS_SIDE_MENU_CLOSE = "Common/rounded_close";
+    private static final String ANDROID_BURGER_ID = "kz.bnk.app.dev:id/mcv_menu";
+    private static final String ANDROID_SIDE_MENU_CLOSE_ID = "kz.bnk.app.dev:id/btn_close";
+
     private static final String LATER_BUTTON = "Позже";
+    // Title of the app-lock screen the app shows when it auto-locks during a long session.
+    private static final String PIN_LOCK_TITLE = "Введите код";
 
     private static final String ANDROID_GREETING_ID = "kz.bnk.app.dev:id/tv_greetings";
     private static final String ANDROID_AMOUNT_ID = "kz.bnk.app.dev:id/tv_amount";
@@ -76,6 +91,91 @@ public class MainScreenPage extends BasePage {
         return !driver.findElements(balanceLocator()).isEmpty();
     }
 
+    /** Opens the "Продукты" tab. */
+    public void openProductsTab() {
+        driver.findElement(tabLocator(TAB_PRODUCTS)).click();
+    }
+
+    /** Opens the "Быстрое меню" tab. */
+    public void openQuickMenuTab() {
+        driver.findElement(tabLocator(TAB_QUICK_MENU)).click();
+    }
+
+    /** Returns to the "Главная" tab. */
+    public void openHomeTab() {
+        driver.findElement(tabLocator(TAB_HOME)).click();
+    }
+
+    /** Opens the side menu (drawer) via the header burger button. */
+    public void openSideMenu() {
+        driver.findElement(burgerLocator()).click();
+    }
+
+    /**
+     * If the app auto-locked to its PIN screen ("Введите код") during a long shared session, re-enters
+     * {@code pin} to unlock. No-op when not locked. The implicit wait is dropped so the common
+     * "not locked" path returns immediately.
+     */
+    public void unlockIfLocked(String pin) {
+        driver.manage().timeouts().implicitlyWait(Duration.ZERO);
+        try {
+            if (!driver.findElements(pinLockTitleLocator()).isEmpty()) {
+                for (char c : pin.toCharArray()) {
+                    driver.findElement(pinDigitLocator(c)).click();
+                }
+                Thread.sleep(2000);  // let the unlock animate back to the previous screen
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        } catch (Exception ignored) {
+        } finally {
+            driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
+        }
+    }
+
+    /** True once the side menu is shown (its unique "Служба поддержки" item appears). */
+    public boolean isSideMenuShown() {
+        return waitVisible(textLocator(SIDE_MENU_MARKER), Duration.ofSeconds(10));
+    }
+
+    /**
+     * Closes the side-menu drawer if it is open, so a reused session returns to a clean home state.
+     * Both platforms have a dedicated close button (Android: btn_close; iOS: Common/rounded_close) —
+     * the Android system Back is NOT used here because on this screen it raises an "exit app?" dialog.
+     * Implicit wait is dropped so the common "nothing open" path returns immediately.
+     */
+    public void dismissSideMenuIfOpen() {
+        driver.manage().timeouts().implicitlyWait(Duration.ZERO);
+        try {
+            var close = driver.findElements(sideMenuCloseLocator());
+            if (!close.isEmpty()) close.get(0).click();
+        } catch (Exception ignored) {
+        } finally {
+            driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
+        }
+    }
+
+    /** True once the Quick-menu screen is shown (its unique "Перевод в другой банк" item appears). */
+    public boolean isQuickMenuShown() {
+        return waitVisible(textLocator(QUICK_MENU_MARKER), Duration.ofSeconds(10));
+    }
+
+    /**
+     * True once the Products screen is shown after tapping the Продукты tab. Android exposes a clean
+     * "selected" flag on the nav item; iOS has no such flag, so we assert we left Home (greeting gone)
+     * and are not on the Quick menu — which, given we tapped Продукты, identifies the Products screen.
+     */
+    public boolean isProductsShown() {
+        return switch (Platform.current()) {
+            case ANDROID -> waitTrue(d -> {
+                var els = d.findElements(AppiumBy.id(ANDROID_NAV_PRODUCTS_ID));
+                return !els.isEmpty() && "true".equals(els.get(0).getAttribute("selected"));
+            });
+            case IOS -> waitTrue(d -> d.findElements(greetingLocator()).isEmpty()
+                    && d.findElements(textLocator(QUICK_MENU_MARKER)).isEmpty());
+        };
+    }
+
     /**
      * True if the bottom-most account action ("Открыть депозит") is currently on-screen. It starts
      * below the fold, so this is false until the account list is scrolled down (see
@@ -84,12 +184,12 @@ public class MainScreenPage extends BasePage {
     public boolean isBottomActionVisible() {
         List<WebElement> els = driver.findElements(bottomActionLocator());
         if (els.isEmpty()) return false;
-        return switch (Platform.current()) {
-            // iOS keeps off-screen nodes in the tree with visible=false; Android renders only
-            // on/near-screen nodes, so presence already means it scrolled into view.
-            case IOS -> "true".equals(els.get(0).getAttribute("visible"));
-            case ANDROID -> els.get(0).isDisplayed();
-        };
+        // Check the element's coordinates rather than isDisplayed()/visible: both platforms keep
+        // off-screen list items in the tree (iOS visible=false, Android bound RecyclerView rows that
+        // still report displayed=true), so only the bounds tell us if it actually sits in the viewport.
+        Rectangle r = els.get(0).getRect();
+        int screenHeight = driver.manage().window().getSize().getHeight();
+        return r.getY() >= 0 && r.getY() < screenHeight;
     }
 
     /** Scrolls the account list down with two upward swipes to bring the bottom actions into view. */
@@ -179,11 +279,69 @@ public class MainScreenPage extends BasePage {
         };
     }
 
+    private By burgerLocator() {
+        return switch (Platform.current()) {
+            case IOS -> AppiumBy.accessibilityId(IOS_BURGER);
+            case ANDROID -> AppiumBy.id(ANDROID_BURGER_ID);
+        };
+    }
+
+    private By sideMenuCloseLocator() {
+        return switch (Platform.current()) {
+            case IOS -> AppiumBy.accessibilityId(IOS_SIDE_MENU_CLOSE);
+            case ANDROID -> AppiumBy.id(ANDROID_SIDE_MENU_CLOSE_ID);
+        };
+    }
+
+    private By pinLockTitleLocator() {
+        return switch (Platform.current()) {
+            case IOS -> AppiumBy.accessibilityId(PIN_LOCK_TITLE);
+            case ANDROID -> AppiumBy.androidUIAutomator(
+                    "new UiSelector().text(\"" + PIN_LOCK_TITLE + "\")");
+        };
+    }
+
+    private By pinDigitLocator(char digit) {
+        return switch (Platform.current()) {
+            case IOS -> AppiumBy.accessibilityId(String.valueOf(digit));
+            case ANDROID -> AppiumBy.id("kz.bnk.app.dev:id/btn" + digit);
+        };
+    }
+
     private By laterButtonLocator() {
         return switch (Platform.current()) {
             case IOS -> AppiumBy.accessibilityId(LATER_BUTTON);
             case ANDROID -> AppiumBy.androidUIAutomator(
                     "new UiSelector().text(\"" + LATER_BUTTON + "\")");
         };
+    }
+
+    // Locates an element by its visible text/label (iOS labels ≈ Android text).
+    private By textLocator(String text) {
+        return switch (Platform.current()) {
+            case IOS -> AppiumBy.iOSNsPredicateString(
+                    "label == '" + text + "' OR name == '" + text + "'");
+            case ANDROID -> AppiumBy.androidUIAutomator(
+                    "new UiSelector().text(\"" + text + "\")");
+        };
+    }
+
+    private boolean waitVisible(By locator, Duration timeout) {
+        try {
+            new WebDriverWait(driver, timeout).until(
+                    ExpectedConditions.visibilityOfElementLocated(locator));
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private boolean waitTrue(java.util.function.Function<org.openqa.selenium.WebDriver, Boolean> condition) {
+        try {
+            new WebDriverWait(driver, Duration.ofSeconds(10)).until(condition::apply);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 }

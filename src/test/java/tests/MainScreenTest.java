@@ -38,7 +38,13 @@ public class MainScreenTest extends BaseTest {
             Assert.assertNotNull(mainScreen,
                     "Main screen must open after completing login and PIN setup");
         } else {
-            // Переиспользуемая сессия: вернуть список к началу, чтобы кейсы не зависели от порядка.
+            // Переиспользуемая сессия: если приложение авто-залочилось («Введите код») за время
+            // прогона — разблокировать PIN-ом; закрыть боковое меню если открыто; вернуться на
+            // «Главную» (кейсы вкладок уводят с неё) и к началу списка (кейс скролла) — чтобы кейсы
+            // не зависели от порядка.
+            mainScreen.unlockIfLocked(LoginFlow.PIN);
+            mainScreen.dismissSideMenuIfOpen();
+            mainScreen.openHomeTab();
             mainScreen.scrollToTop();
         }
     }
@@ -60,6 +66,27 @@ public class MainScreenTest extends BaseTest {
     public void mainScreenShowsAccounts() {
         Assert.assertTrue(mainScreen.hasAccountBalances(),
                 "Main screen should list at least one account balance (a currency amount)");
+    }
+
+    @Test(description = "Tapping the Продукты tab opens the products screen")
+    public void productsTabOpensProductsScreen() {
+        mainScreen.openProductsTab();
+        Assert.assertTrue(mainScreen.isProductsShown(),
+                "Tapping the Продукты tab should open the products screen");
+    }
+
+    @Test(description = "Tapping the Быстрое меню tab opens the quick menu")
+    public void quickMenuTabOpensQuickMenu() {
+        mainScreen.openQuickMenuTab();
+        Assert.assertTrue(mainScreen.isQuickMenuShown(),
+                "Tapping the Быстрое меню tab should open the quick menu ('Перевод в другой банк')");
+    }
+
+    @Test(description = "Tapping the header burger opens the side menu")
+    public void burgerOpensSideMenu() {
+        mainScreen.openSideMenu();
+        Assert.assertTrue(mainScreen.isSideMenuShown(),
+                "The side menu ('Служба поддержки') should open from the header burger");
     }
 
     @Test(description = "Scrolling the account list reveals the bottom actions")
