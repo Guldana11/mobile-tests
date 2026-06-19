@@ -62,6 +62,12 @@ xcrun simctl boot "iPhone 17" && open -a Simulator
 
 # проверить, что загрузился
 xcrun simctl list devices booted
+
+# список всех доступных симуляторов (если "iPhone 17" нет — взять имя отсюда)
+xcrun simctl list devices available
+
+# выключить симулятор
+xcrun simctl shutdown "iPhone 17"
 ```
 
 > Девайс и версия берутся из `src/test/resources/ios.properties`
