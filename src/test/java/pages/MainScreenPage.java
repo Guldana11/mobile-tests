@@ -116,6 +116,34 @@ public class MainScreenPage extends BasePage {
     }
 
     /**
+     * Closes the "Быстрое меню" bottom sheet and returns to the previous screen. The sheet has no
+     * close button — Android dismisses it with the system Back gesture (verified: returns to Главная).
+     */
+    public void closeQuickMenu() {
+        driver.navigate().back();
+    }
+
+    /**
+     * Closes the "Быстрое меню" bottom sheet if it is open, so a reused session returns to a clean
+     * home state. The sheet replaces the bottom navigation, so it must be closed BEFORE any
+     * {@code openHomeTab()} call. Implicit wait is dropped so the common "nothing open" path is fast.
+     */
+    public void closeQuickMenuIfOpen() {
+        driver.manage().timeouts().implicitlyWait(Duration.ZERO);
+        try {
+            if (!driver.findElements(textLocator(QUICK_MENU_MARKER)).isEmpty()) {
+                driver.navigate().back();
+                Thread.sleep(800);  // let the sheet animate away before the next step
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        } catch (Exception ignored) {
+        } finally {
+            driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
+        }
+    }
+
+    /**
      * Taps the first account card in the list (its balance amount is the clickable target) to open
      * the account-detail screen. Reuses {@link #balanceLocator()} — its first match is the topmost
      * account row.
