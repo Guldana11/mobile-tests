@@ -56,6 +56,10 @@ public class MainScreenPage extends BasePage {
     private static final String ANDROID_GREETING_ID = "kz.bnk.app.dev:id/tv_greetings";
     private static final String ANDROID_AMOUNT_ID = "kz.bnk.app.dev:id/tv_amount";
 
+    // Shared toolbar back arrow on in-app sub-screens (account detail, side-menu destinations).
+    private static final String ANDROID_TOOLBAR_BACK_ID = "kz.bnk.app.dev:id/iv_back";
+    private static final String IOS_TOOLBAR_BACK = "Common/back";  // UNVERIFIED — confirm on iOS dump.
+
     public MainScreenPage(AppiumDriver driver) {
         super(driver);
     }
@@ -119,6 +123,25 @@ public class MainScreenPage extends BasePage {
     public AccountDetailPage openFirstAccount() {
         driver.findElement(balanceLocator()).click();
         return new AccountDetailPage(driver);
+    }
+
+    /** True if the open side menu lists the given item by its visible label. */
+    public boolean sideMenuHasItem(String label) {
+        return !driver.findElements(textLocator(label)).isEmpty();
+    }
+
+    /** Taps a side-menu item by its visible label (the menu must already be open). */
+    public void openSideMenuItem(String label) {
+        driver.findElement(textLocator(label)).click();
+    }
+
+    /**
+     * Taps the toolbar back arrow shared by the in-app sub-screens (account detail, side-menu
+     * destinations like "Курсы обмена валют"). Returns to the previous screen — the main screen when
+     * the sub-screen was reached from there.
+     */
+    public void tapToolbarBack() {
+        driver.findElement(toolbarBackLocator()).click();
     }
 
     /**
@@ -286,6 +309,13 @@ public class MainScreenPage extends BasePage {
             case IOS -> AppiumBy.accessibilityId(BOTTOM_ACTION);
             case ANDROID -> AppiumBy.androidUIAutomator(
                     "new UiSelector().text(\"" + BOTTOM_ACTION + "\")");
+        };
+    }
+
+    private By toolbarBackLocator() {
+        return switch (Platform.current()) {
+            case IOS -> AppiumBy.accessibilityId(IOS_TOOLBAR_BACK);
+            case ANDROID -> AppiumBy.id(ANDROID_TOOLBAR_BACK_ID);
         };
     }
 
