@@ -39,11 +39,13 @@ public class MainScreenTest extends BaseTest {
                     "Main screen must open after completing login and PIN setup");
         } else {
             // Переиспользуемая сессия: если приложение авто-залочилось («Введите код») за время
-            // прогона — разблокировать PIN-ом; закрыть боковое меню если открыто; вернуться на
-            // «Главную» (кейсы вкладок уводят с неё) и к началу списка (кейс скролла) — чтобы кейсы
-            // не зависели от порядка.
+            // прогона — разблокировать PIN-ом; закрыть боковое меню если открыто; закрыть лист
+            // «Быстрое меню» если открыт (он СКРЫВАЕТ нижнюю панель, поэтому его надо закрыть ДО
+            // openHomeTab, иначе таб «Главная» не найдётся); вернуться на «Главную» (кейсы вкладок
+            // уводят с неё) и к началу списка (кейс скролла) — чтобы кейсы не зависели от порядка.
             mainScreen.unlockIfLocked(LoginFlow.PIN);
             mainScreen.dismissSideMenuIfOpen();
+            mainScreen.closeQuickMenuIfOpen();
             mainScreen.openHomeTab();
             mainScreen.scrollToTop();
         }

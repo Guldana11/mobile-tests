@@ -60,6 +60,9 @@ public class MainScreenPage extends BasePage {
     private static final String ANDROID_TOOLBAR_BACK_ID = "kz.bnk.app.dev:id/iv_back";
     private static final String IOS_TOOLBAR_BACK = "Common/back";  // UNVERIFIED — confirm on iOS dump.
 
+    // The SwipeRefreshLayout wrapping the account list — its presence proves pull-to-refresh is wired.
+    private static final String ANDROID_SWIPE_REFRESH_ID = "kz.bnk.app.dev:id/swipe_refresh";
+
     public MainScreenPage(AppiumDriver driver) {
         super(driver);
     }
@@ -253,6 +256,22 @@ public class MainScreenPage extends BasePage {
         return r.getY() >= 0 && r.getY() < screenHeight;
     }
 
+    /** True if the home screen exposes the pull-to-refresh container (SwipeRefreshLayout). */
+    public boolean hasPullToRefresh() {
+        return !driver.findElements(swipeRefreshLocator()).isEmpty();
+    }
+
+    /**
+     * Performs a pull-to-refresh: scrolls to the top of the account list (so the gesture lands on the
+     * SwipeRefreshLayout rather than scrolling content) and drags down. The refresh spinner is a
+     * drawable, not an accessibility node, so callers verify the OUTCOME (the home screen reloads
+     * intact) rather than the spinner itself.
+     */
+    public void pullToRefresh() {
+        scrollToTop();
+        verticalSwipe(0.20, 0.85);
+    }
+
     /** Scrolls the account list down with two upward swipes to bring the bottom actions into view. */
     public void scrollAccountsDown() {
         verticalSwipe(0.80, 0.30);
@@ -337,6 +356,14 @@ public class MainScreenPage extends BasePage {
             case IOS -> AppiumBy.accessibilityId(BOTTOM_ACTION);
             case ANDROID -> AppiumBy.androidUIAutomator(
                     "new UiSelector().text(\"" + BOTTOM_ACTION + "\")");
+        };
+    }
+
+    private By swipeRefreshLocator() {
+        return switch (Platform.current()) {
+            // iOS uses a UIRefreshControl, not this id — UNVERIFIED, this page runs on Android only.
+            case IOS -> AppiumBy.iOSNsPredicateString("type == 'XCUIElementTypeOther'");
+            case ANDROID -> AppiumBy.id(ANDROID_SWIPE_REFRESH_ID);
         };
     }
 

@@ -22,6 +22,7 @@
             <class name="tests.AccountDetailTest"/>         <!-- тап по счёту → экран деталей: баланс, действия, вкладки, назад 3 кейс (iOS TODO) -->
             <class name="tests.SideMenuTest"/>              <!-- боковое меню: список пунктов + переход в "Курсы обмена валют" и назад 2 кейс (iOS TODO) -->
             <class name="tests.BottomNavTest"/>             <!-- нижняя навигация: Главная↔Продукты табы + Быстрое меню (bottom sheet, закрытие) 2 кейс (iOS TODO) -->
+            <class name="tests.PullToRefreshTest"/>         <!-- pull-to-refresh главного экрана: контейнер + перезагрузка экрана 2 кейс (iOS TODO) -->
         </classes>
     </test>
 </suite>
