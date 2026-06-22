@@ -1,7 +1,9 @@
 package tests;
 
 import core.BaseTest;
+import core.Platform;
 import org.testng.Assert;
+import org.testng.SkipException;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import pages.MainScreenPage;
@@ -16,8 +18,10 @@ import pages.MainScreenPage;
  * <p>Reached ONCE per class ({@link #resetBeforeEachMethod()} = false), session reused;
  * {@link #ensureMainScreen()} restores a clean Главная before each case.
  *
- * <p><b>Android-only:</b> the pull-to-refresh container is matched by an Android id; iOS uses a
- * UIRefreshControl (unverified), so this class is registered in android.xml only.
+ * <p>Cross-platform with one exception: the refresh container is matched by an Android id and is not
+ * exposed in this build's iOS accessibility tree, so {@link #homeExposesPullToRefresh()} skips on
+ * iOS; {@link #pullToRefreshReloadsHome()} (the gesture + intact-home check) runs on both. Registered
+ * in both suites.
  */
 public class PullToRefreshTest extends BaseTest {
 
@@ -49,6 +53,10 @@ public class PullToRefreshTest extends BaseTest {
 
     @Test(description = "The home account list exposes a pull-to-refresh control")
     public void homeExposesPullToRefresh() {
+        if (Platform.current() == Platform.IOS) {
+            throw new SkipException("iOS: this build does not expose the refresh control in the "
+                    + "accessibility tree; the gesture is still covered by pullToRefreshReloadsHome");
+        }
         Assert.assertTrue(mainScreen.hasPullToRefresh(),
                 "The home screen should wrap the account list in a SwipeRefreshLayout");
     }

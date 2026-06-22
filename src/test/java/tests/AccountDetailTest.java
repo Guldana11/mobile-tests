@@ -17,8 +17,11 @@ import pages.MainScreenPage;
  * screen itself; {@link #ensureMainScreen()} restores a clean main-screen state before every case
  * (unlock if auto-locked, navigate back if a previous case left the detail screen open).
  *
- * <p><b>Android-only for now:</b> the detail screen's iOS locators are unverified (see
- * {@link AccountDetailPage}), so this class is registered in android.xml only.
+ * <p><b>Android-only by design:</b> on iOS this build renders the account list as unnamed container
+ * elements with loose static-text leaves — there is no tappable account cell in the accessibility
+ * tree, so opening an account would require a fragile coordinate tap. Kept in android.xml only;
+ * revisit if a future iOS build exposes account cells. (The detail screen's back arrow is "BackButton"
+ * on iOS, already wired in {@link AccountDetailPage} for when that happens.)
  */
 public class AccountDetailTest extends BaseTest {
 

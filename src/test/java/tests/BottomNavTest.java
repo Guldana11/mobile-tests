@@ -1,7 +1,9 @@
 package tests;
 
 import core.BaseTest;
+import core.Platform;
 import org.testng.Assert;
+import org.testng.SkipException;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import pages.MainScreenPage;
@@ -24,8 +26,10 @@ import pages.MainScreenPage;
  * {@link #ensureMainScreen()} restores Главная before each case (closing the quick-menu sheet first,
  * since it hides the bottom bar that {@code openHomeTab()} needs).
  *
- * <p><b>Android-only for now:</b> dismissing the quick-menu sheet relies on the Android system Back
- * gesture (iOS sheets have no hardware back), so this class is registered in android.xml only.
+ * <p>Cross-platform except the quick-menu close: tab switching is the same on both platforms, but
+ * dismissing the Быстрое меню sheet relies on the Android system Back gesture (iOS sheets have no
+ * hardware back, and this build's sheet exposes no close control in the accessibility tree), so
+ * {@link #quickMenuSheetOpensAndClosesToHome()} skips on iOS. Registered in both suites.
  */
 public class BottomNavTest extends BaseTest {
 
@@ -72,6 +76,10 @@ public class BottomNavTest extends BaseTest {
 
     @Test(description = "Быстрое меню opens its bottom sheet and Back closes it to Главная")
     public void quickMenuSheetOpensAndClosesToHome() {
+        if (Platform.current() == Platform.IOS) {
+            throw new SkipException("iOS: the Быстрое меню sheet has no close control in the a11y tree "
+                    + "and no hardware Back; closing it would need a fragile coordinate tap");
+        }
         mainScreen.openQuickMenuTab();
         Assert.assertTrue(mainScreen.isQuickMenuShown(),
                 "Быстрое меню should open its sheet ('Перевод в другой банк')");

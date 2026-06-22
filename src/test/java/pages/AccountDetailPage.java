@@ -31,7 +31,7 @@ public class AccountDetailPage extends BasePage {
     private static final String TAB_SETTINGS = "Настройки";
 
     private static final String ANDROID_BACK_ID = "kz.bnk.app.dev:id/iv_back";
-    private static final String IOS_BACK = "Common/back";  // UNVERIFIED — confirm on an iOS dump.
+    private static final String IOS_BACK = "BackButton";  // verified on iOS sub-screens; this class is Android-only.
 
     public AccountDetailPage(AppiumDriver driver) {
         super(driver);

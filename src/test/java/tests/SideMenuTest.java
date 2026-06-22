@@ -16,8 +16,8 @@ import pages.MainScreenPage;
  * restores a clean main-screen state before each case (unlock if auto-locked, close the drawer or
  * step back out of a sub-screen a previous case may have left open).
  *
- * <p><b>Android-only for now:</b> the toolbar back arrow's iOS locator is unverified (see
- * {@link MainScreenPage}), so this class is registered in android.xml only.
+ * <p>Cross-platform: side-menu items are locale text and the toolbar back arrow is "BackButton" on
+ * iOS (verified). Registered in both android.xml and ios.xml.
  */
 public class SideMenuTest extends BaseTest {
 

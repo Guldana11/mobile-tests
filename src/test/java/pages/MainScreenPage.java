@@ -58,7 +58,7 @@ public class MainScreenPage extends BasePage {
 
     // Shared toolbar back arrow on in-app sub-screens (account detail, side-menu destinations).
     private static final String ANDROID_TOOLBAR_BACK_ID = "kz.bnk.app.dev:id/iv_back";
-    private static final String IOS_TOOLBAR_BACK = "Common/back";  // UNVERIFIED — confirm on iOS dump.
+    private static final String IOS_TOOLBAR_BACK = "BackButton";  // verified on the "Курсы обмена валют" screen.
 
     // The SwipeRefreshLayout wrapping the account list — its presence proves pull-to-refresh is wired.
     private static final String ANDROID_SWIPE_REFRESH_ID = "kz.bnk.app.dev:id/swipe_refresh";
