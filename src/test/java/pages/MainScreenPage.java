@@ -112,6 +112,16 @@ public class MainScreenPage extends BasePage {
     }
 
     /**
+     * Taps the first account card in the list (its balance amount is the clickable target) to open
+     * the account-detail screen. Reuses {@link #balanceLocator()} — its first match is the topmost
+     * account row.
+     */
+    public AccountDetailPage openFirstAccount() {
+        driver.findElement(balanceLocator()).click();
+        return new AccountDetailPage(driver);
+    }
+
+    /**
      * If the app auto-locked to its PIN screen ("Введите код") during a long shared session, re-enters
      * {@code pin} to unlock. No-op when not locked. The implicit wait is dropped so the common
      * "not locked" path returns immediately.
