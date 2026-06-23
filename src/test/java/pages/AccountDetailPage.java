@@ -59,6 +59,12 @@ public class AccountDetailPage extends BasePage {
         driver.findElement(backLocator()).click();
     }
 
+    /** Taps the "Перевести" action to open the transfer flow, returning the {@link TransferPage}. */
+    public TransferPage tapTransfer() {
+        driver.findElement(textLocator(ACTION_TRANSFER)).click();
+        return new TransferPage(driver);
+    }
+
     private By backLocator() {
         return switch (Platform.current()) {
             case IOS -> AppiumBy.accessibilityId(IOS_BACK);
