@@ -12,10 +12,10 @@ import pages.MainScreenPage;
  * (EPIC 0 / T-01). Verifies the detail screen opens with its balance, action buttons and tabs,
  * and that the toolbar back arrow returns to the main screen.
  *
- * <p>Login to the main screen is expensive, so — like {@link MainScreenTest} — we reach it ONCE per
- * class ({@link #resetBeforeEachMethod()} = false) and reuse the session. Each case opens the detail
- * screen itself; {@link #ensureMainScreen()} restores a clean main-screen state before every case
- * (unlock if auto-locked, navigate back if a previous case left the detail screen open).
+ * <p>These cases navigate into the detail screen and don't return, so — unlike {@link MainScreenTest}
+ * — the class does NOT share a session: {@link #reachMainScreen()} reinstalls and logs in fresh before
+ * every case (the BaseTest reset-per-method default). Slower, but robust and order-independent; a
+ * shared session needed fragile back-navigation recovery that flaked under load in the full suite.
  *
  * <p><b>Android-only by design:</b> on iOS this build renders the account list as unnamed container
  * elements with loose static-text leaves — there is no tappable account cell in the accessibility
@@ -27,31 +27,19 @@ public class AccountDetailTest extends BaseTest {
 
     private MainScreenPage mainScreen;
 
-    @Override
-    protected boolean resetBeforeEachMethod() {
-        return false;
-    }
-
+    // Reset-per-method (the BaseTest default): every case starts from a fresh install and logs in to a
+    // clean main screen. These cases navigate INTO the detail screen and don't navigate back, so a
+    // shared session would need fragile recovery to return home between cases (which flaked under load
+    // in the full suite). A fresh login per case is slower but robust and order-independent.
     @BeforeMethod(alwaysRun = true)
-    public void ensureMainScreen() {
+    public void reachMainScreen() {
+        mainScreen = LoginFlow.reachMainScreen(driver, LoginFlow.PRIMARY);
         if (mainScreen == null) {
-            mainScreen = LoginFlow.reachMainScreen(driver, LoginFlow.PRIMARY);
-            if (mainScreen == null) {
-                reinstallAndRestart();
-                mainScreen = LoginFlow.reachMainScreen(driver, LoginFlow.FALLBACK);
-            }
-            Assert.assertNotNull(mainScreen,
-                    "Main screen must open after completing login and PIN setup");
-        } else {
-            // Reused session: unlock if it auto-locked, then make sure we are back on the main screen
-            // (a previous case may have left the detail screen open).
-            mainScreen.unlockIfLocked(LoginFlow.PIN);
-            if (!mainScreen.isDisplayed()) {
-                new AccountDetailPage(driver).goBack();
-            }
-            mainScreen.openHomeTab();
-            mainScreen.scrollToTop();
+            reinstallAndRestart();
+            mainScreen = LoginFlow.reachMainScreen(driver, LoginFlow.FALLBACK);
         }
+        Assert.assertNotNull(mainScreen,
+                "Main screen must open after completing login and PIN setup");
     }
 
     @Test(description = "Tapping an account card opens its detail screen with balance and actions")

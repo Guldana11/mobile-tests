@@ -272,10 +272,16 @@ public class MainScreenPage extends BasePage {
         verticalSwipe(0.20, 0.85);
     }
 
-    /** Scrolls the account list down with two upward swipes to bring the bottom actions into view. */
+    /**
+     * Scrolls the account list down until the bottom action ("Открыть депозит") is in view, up to a
+     * few swipes. Looping until the marker appears (rather than a fixed two swipes) makes this robust
+     * to a slow emulator under-scrolling or a tall list — the cause of the earlier accountListScrolls
+     * flake.
+     */
     public void scrollAccountsDown() {
-        verticalSwipe(0.80, 0.30);
-        verticalSwipe(0.80, 0.30);
+        for (int i = 0; i < 6 && !isBottomActionVisible(); i++) {
+            verticalSwipe(0.80, 0.30);
+        }
     }
 
     /**

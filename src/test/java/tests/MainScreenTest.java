@@ -77,7 +77,11 @@ public class MainScreenTest extends BaseTest {
                 "Tapping the Продукты tab should open the products screen");
     }
 
-    @Test(description = "Tapping the Быстрое меню tab opens the quick menu")
+    // priority=1 forces this to run LAST in the shared-session class: it opens the "Быстрое меню"
+    // bottom sheet, which on iOS cannot be closed (no hardware Back, no close control in the tree — see
+    // BottomNavTest). Running it last means no @BeforeMethod (which needs the bottom bar the sheet
+    // hides) executes after it. On Android the sheet is closed by the next run's reset.
+    @Test(priority = 1, description = "Tapping the Быстрое меню tab opens the quick menu")
     public void quickMenuTabOpensQuickMenu() {
         mainScreen.openQuickMenuTab();
         Assert.assertTrue(mainScreen.isQuickMenuShown(),
