@@ -215,13 +215,48 @@ public class MainScreenPage extends BasePage {
     }
 
     /**
-     * Taps the first account card in the list (its balance amount is the clickable target) to open
-     * the account-detail screen. Reuses {@link #balanceLocator()} — its first match is the topmost
-     * account row.
+     * Opens the first account's detail screen. On Android the balance amount is the clickable target.
+     * On iOS the account list has no tappable cell in the a11y tree (see {@code AccountDetailTest}),
+     * so we tap the account row by coordinates, retrying a few y-offsets until the detail's "Перевести"
+     * action appears — UNVERIFIED end-to-end (written from inspector dumps; confirm on a live sim).
      */
     public AccountDetailPage openFirstAccount() {
-        driver.findElement(balanceLocator()).click();
+        switch (Platform.current()) {
+            case ANDROID -> driver.findElement(balanceLocator()).click();
+            case IOS -> openFirstAccountByCoordinateIos();
+        }
         return new AccountDetailPage(driver);
+    }
+
+    // iOS: coordinate-tap the first "Текущий счет" row, retrying y-offsets until the detail opens
+    // (signalled by the "Реквизиты" action, a stable detail marker). The leaf StaticText doesn't
+    // propagate a tap, so we hit the card body by coordinates. Flaky by nature — see
+    // project_ios_a11y_tree.
+    private void openFirstAccountByCoordinateIos() {
+        By accName = AppiumBy.iOSNsPredicateString(
+                "type == 'XCUIElementTypeStaticText' AND label BEGINSWITH 'Текущий счет'");
+        By detailMarker = AppiumBy.iOSNsPredicateString("label == 'Реквизиты' OR name == 'Реквизиты'");
+        for (int offset : new int[]{0, -28, 28, -56, 14}) {
+            java.util.List<WebElement> rows = driver.findElements(accName);
+            if (rows.isEmpty()) return;
+            Rectangle r = rows.get(0).getRect();
+            tapXY(r.getX() + r.getWidth() / 2, r.getY() + offset);
+            sleepQuietly(2000);
+            if (!driver.findElements(detailMarker).isEmpty()) return;
+        }
+    }
+
+    private void tapXY(int x, int y) {
+        PointerInput finger = new PointerInput(PointerInput.Kind.TOUCH, "finger");
+        driver.perform(Collections.singletonList(new Sequence(finger, 1)
+                .addAction(finger.createPointerMove(Duration.ZERO, PointerInput.Origin.viewport(), x, y))
+                .addAction(finger.createPointerDown(PointerInput.MouseButton.LEFT.asArg()))
+                .addAction(finger.createPointerMove(Duration.ofMillis(120), PointerInput.Origin.viewport(), x, y))
+                .addAction(finger.createPointerUp(PointerInput.MouseButton.LEFT.asArg()))));
+    }
+
+    private void sleepQuietly(long ms) {
+        try { Thread.sleep(ms); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
     }
 
     /** True if the open side menu lists the given item by its visible label. */

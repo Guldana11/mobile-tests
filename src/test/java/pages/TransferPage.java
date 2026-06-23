@@ -1,5 +1,6 @@
 package pages;
 
+import core.Platform;
 import io.appium.java_client.AppiumBy;
 import io.appium.java_client.AppiumDriver;
 import io.appium.java_client.android.AndroidDriver;
@@ -43,10 +44,41 @@ public class TransferPage extends BasePage {
         super(driver);
     }
 
+    // ---- iOS (UNVERIFIED draft — written from inspector dumps, confirm on a live simulator) ----
+    // The iOS transfer screen differs from Android: a dedicated "Между своими счетами" screen with the
+    // source account, a "Выберите счет" destination selector, an amount TextField and a "Перевести"
+    // submit button (back = "BackButton"). The destination picker and the confirmation screen were NOT
+    // mapped yet — see the TODOs below.
+    private static final String IOS_BETWEEN_OWN = "Между своими счетами";
+    private static final String IOS_SUBMIT = "Перевести";
+    private static final String IOS_PICK_DESTINATION = "Выберите счет";
+
     /** True once the "Сумма перевода" sheet is shown (amount field + Продолжить button present). */
     public boolean isAmountSheetShown() {
         return waitVisible(By.id(AMOUNT_ID), Duration.ofSeconds(15))
                 && !driver.findElements(By.id(CONTINUE_ID)).isEmpty();
+    }
+
+    /**
+     * True once the transfer entry screen is shown. Cross-platform: Android = the "Сумма перевода"
+     * sheet; iOS = the "Между своими счетами" screen (title + "Перевести" submit button).
+     */
+    public boolean isTransferEntryShown() {
+        return switch (Platform.current()) {
+            case ANDROID -> isAmountSheetShown();
+            case IOS -> waitVisible(iosLabel(IOS_BETWEEN_OWN), Duration.ofSeconds(15))
+                    && !driver.findElements(AppiumBy.accessibilityId(IOS_SUBMIT)).isEmpty();
+        };
+    }
+
+    // TODO(iOS, next session): map and implement on a live simulator —
+    //   - tap IOS_PICK_DESTINATION → the account picker, select a distinct own account;
+    //   - enter the amount into the iOS TextField (no IME-done hack needed);
+    //   - tap IOS_SUBMIT and assert the iOS confirmation screen (markers not captured yet).
+    // Until then the iOS path only covers reaching isTransferEntryShown().
+
+    private By iosLabel(String text) {
+        return AppiumBy.iOSNsPredicateString("label == '" + text + "' OR name == '" + text + "'");
     }
 
     /** Opens the destination-account picker by tapping the top (credit) card on the sheet. */

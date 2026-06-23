@@ -25,7 +25,8 @@ public class AccountDetailPage extends BasePage {
 
     // Available-balance label — present only on the detail screen, not on the account list.
     private static final String AVAILABLE_LABEL = "Доступный";
-    private static final String ACTION_TRANSFER = "Перевести";
+    private static final String ACTION_TRANSFER = "Перевести";       // Android detail action label
+    private static final String IOS_ACTION_TRANSFER = "Переводы";     // iOS detail action label (plural)
     private static final String ACTION_REQUISITES = "Реквизиты";
     private static final String TAB_HISTORY = "История";
     private static final String TAB_SETTINGS = "Настройки";
@@ -59,9 +60,16 @@ public class AccountDetailPage extends BasePage {
         driver.findElement(backLocator()).click();
     }
 
-    /** Taps the "Перевести" action to open the transfer flow, returning the {@link TransferPage}. */
+    /**
+     * Taps the transfer action on the detail screen to open the transfer flow, returning the
+     * {@link TransferPage}. The label differs by platform: Android "Перевести", iOS "Переводы".
+     */
     public TransferPage tapTransfer() {
-        driver.findElement(textLocator(ACTION_TRANSFER)).click();
+        String label = switch (Platform.current()) {
+            case ANDROID -> ACTION_TRANSFER;
+            case IOS -> IOS_ACTION_TRANSFER;
+        };
+        driver.findElement(textLocator(label)).click();
         return new TransferPage(driver);
     }
 
