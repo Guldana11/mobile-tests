@@ -55,6 +55,9 @@ public class MainScreenPage extends BasePage {
 
     private static final String ANDROID_GREETING_ID = "kz.bnk.app.dev:id/tv_greetings";
     private static final String ANDROID_AMOUNT_ID = "kz.bnk.app.dev:id/tv_amount";
+    // Account name/number ("Текущий счет *xxxx") on the home account cards (the transfer sheet uses
+    // a different id, tv_type, for the same text).
+    private static final String ANDROID_ACCOUNT_NAME_ID = "kz.bnk.app.dev:id/tv_alias";
 
     // Shared toolbar back arrow on in-app sub-screens (account detail, side-menu destinations).
     private static final String ANDROID_TOOLBAR_BACK_ID = "kz.bnk.app.dev:id/iv_back";
@@ -116,6 +119,71 @@ public class MainScreenPage extends BasePage {
     /** Opens the side menu (drawer) via the header burger button. */
     public void openSideMenu() {
         driver.findElement(burgerLocator()).click();
+    }
+
+    /**
+     * The "Текущий счет *xxxx" current accounts on the home screen, sorted by balance DESC (the most
+     * funded first). Drag-and-drop must drag FROM a funded account — the app rejects a drag whose
+     * source account has no money ("Перевод невозможен — недостаточно средств"). Pairs each account's
+     * alias (name) with its balance by row y-proximity.
+     */
+    public java.util.List<String> homeCurrentAccountsByBalanceDesc() {
+        java.util.List<WebElement> aliases = driver.findElements(AppiumBy.androidUIAutomator(
+                "new UiSelector().resourceId(\"" + ANDROID_ACCOUNT_NAME_ID + "\").textContains(\"Текущий счет\")"));
+        java.util.List<WebElement> amounts = driver.findElements(AppiumBy.id(ANDROID_AMOUNT_ID));
+        java.util.List<String> names = new java.util.ArrayList<>();
+        java.util.Map<String, Long> balances = new java.util.HashMap<>();
+        for (WebElement alias : aliases) {
+            String name = alias.getText();
+            int y = alias.getRect().getY();
+            long bal = 0;
+            int best = Integer.MAX_VALUE;
+            for (WebElement amount : amounts) {
+                int d = Math.abs(amount.getRect().getY() - y);
+                if (d < best) { best = d; bal = parseBalance(amount.getText()); }
+            }
+            if (!balances.containsKey(name)) { names.add(name); balances.put(name, bal); }
+        }
+        names.sort((a, b) -> Long.compare(balances.get(b), balances.get(a)));
+        return names;
+    }
+
+    // Integer part of a balance string like "49 570 400,00 ₸" → 49570400 (0 if none).
+    private long parseBalance(String text) {
+        String intPart = text.split(",")[0].replaceAll("[^0-9]", "");
+        return intPart.isEmpty() ? 0 : Long.parseLong(intPart);
+    }
+
+    /**
+     * Drag-and-drop transfer between two own accounts on the home screen: drags the card named
+     * {@code fromAccount} onto the card named {@code ontoAccount}, which opens the "Сумма перевода"
+     * sheet pre-filled from the gesture. Per the app's behaviour the dragged-FROM account becomes the
+     * destination (credit / куда) and the dragged-ONTO account becomes the source (debit / откуда).
+     * Scrolls to the top first so both cards are in view.
+     */
+    public TransferPage dragTransfer(String fromAccount, String ontoAccount) {
+        scrollToTop();
+        WebElement from = driver.findElement(AppiumBy.androidUIAutomator(
+                "new UiSelector().textContains(\"" + fromAccount + "\")"));
+        WebElement onto = driver.findElement(AppiumBy.androidUIAutomator(
+                "new UiSelector().textContains(\"" + ontoAccount + "\")"));
+        Rectangle a = from.getRect(), b = onto.getRect();
+        dragAndDrop(a.getX() + a.getWidth() / 2, a.getY() + a.getHeight() / 2,
+                b.getX() + b.getWidth() / 2, b.getY() + b.getHeight() / 2);
+        return new TransferPage(driver);
+    }
+
+    // Long-press to pick up the card, then a slow drag to the target and a settle before release.
+    private void dragAndDrop(int x1, int y1, int x2, int y2) {
+        PointerInput finger = new PointerInput(PointerInput.Kind.TOUCH, "finger");
+        Sequence drag = new Sequence(finger, 1)
+                .addAction(finger.createPointerMove(Duration.ZERO, PointerInput.Origin.viewport(), x1, y1))
+                .addAction(finger.createPointerDown(PointerInput.MouseButton.LEFT.asArg()))
+                .addAction(finger.createPointerMove(Duration.ofMillis(1000), PointerInput.Origin.viewport(), x1, y1))
+                .addAction(finger.createPointerMove(Duration.ofMillis(1600), PointerInput.Origin.viewport(), x2, y2))
+                .addAction(finger.createPointerMove(Duration.ofMillis(400), PointerInput.Origin.viewport(), x2, y2))
+                .addAction(finger.createPointerUp(PointerInput.MouseButton.LEFT.asArg()));
+        driver.perform(Collections.singletonList(drag));
     }
 
     /**

@@ -134,6 +134,21 @@ public class TransferPage extends BasePage {
                 && !driver.findElements(textLocator(CONFIRM_BUTTON)).isEmpty();
     }
 
+    /** The destination ("куда" / credit) account shown on the sheet, e.g. "Текущий счет *400896". */
+    public String destinationAccount() {
+        return accountIn("kz.bnk.app.dev:id/recycler_view_credit");
+    }
+
+    /** The source ("откуда" / debit) account shown on the sheet. */
+    public String sourceAccount() {
+        return accountIn("kz.bnk.app.dev:id/recycler_view_debit");
+    }
+
+    private String accountIn(String recyclerId) {
+        return driver.findElement(By.id(recyclerId))
+                .findElement(By.id("kz.bnk.app.dev:id/tv_type")).getText();
+    }
+
     /** True if the confirmation screen shows the given amount (e.g. "1 000,00 ₸"). */
     public boolean confirmationShowsAmount(String amountText) {
         return !driver.findElements(AppiumBy.androidUIAutomator(
