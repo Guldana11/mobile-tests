@@ -116,6 +116,21 @@ public class MainScreenPage extends BasePage {
         driver.findElement(tabLocator(TAB_HOME)).click();
     }
 
+    /**
+     * Opens the "Перевод внутри банка" (within-bank, by-phone) transfer from the Быстрое меню sheet,
+     * dismissing the fraud-warning sheet, and returns the {@link PhoneTransferPage} on the form.
+     */
+    public PhoneTransferPage openInBankTransfer() {
+        openQuickMenuTab();
+        new org.openqa.selenium.support.ui.WebDriverWait(driver, Duration.ofSeconds(10))
+                .until(org.openqa.selenium.support.ui.ExpectedConditions.elementToBeClickable(
+                        textLocator("Перевод внутри банка")))
+                .click();
+        PhoneTransferPage page = new PhoneTransferPage(driver);
+        page.dismissWarning();
+        return page;
+    }
+
     /** Opens the side menu (drawer) via the header burger button. */
     public void openSideMenu() {
         driver.findElement(burgerLocator()).click();

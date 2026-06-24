@@ -23,7 +23,8 @@
             <class name="tests.SideMenuTest"/>              <!-- боковое меню: список пунктов + переход в "Курсы обмена валют" и назад 2 кейс (iOS TODO) -->
             <class name="tests.BottomNavTest"/>             <!-- нижняя навигация: Главная↔Продукты табы + Быстрое меню (bottom sheet, закрытие) 2 кейс (iOS TODO) -->
             <class name="tests.PullToRefreshTest"/>         <!-- pull-to-refresh главного экрана: контейнер + перезагрузка экрана 2 кейс (iOS TODO) -->
-            <class name="tests.TransferTest"/>              <!-- T-05 перевод между своими счетами → экран "Подтверждение" (деньги НЕ двигаются) 1 кейс (iOS TODO) -->
+            <class name="tests.TransferTest"/>              <!-- T-05 перевод между своими счетами → экран "Подтверждение" (деньги НЕ двигаются) 2 кейса: Перевести + drag/drop (iOS TODO) -->
+            <class name="tests.PhoneTransferTest"/>         <!-- T-06 перевод по номеру телефона (внутри банка) → экран "Подтверждение" (деньги НЕ двигаются) 1 кейс (iOS TODO) -->
         </classes>
     </test>
 </suite>
