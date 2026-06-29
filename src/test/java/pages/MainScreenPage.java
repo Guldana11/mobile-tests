@@ -117,18 +117,31 @@ public class MainScreenPage extends BasePage {
     }
 
     /**
-     * Opens the "Перевод внутри банка" (within-bank, by-phone) transfer from the Быстрое меню sheet,
-     * dismissing the fraud-warning sheet, and returns the {@link PhoneTransferPage} on the form.
+     * Opens the within-bank, by-phone transfer from the Быстрое меню sheet, dismissing the
+     * fraud-warning sheet, and returns the {@link PhoneTransferPage} on the form. The menu item label
+     * differs by platform: Android "Перевод внутри банка", iOS "Переводы внутри банка" (plural).
      */
     public PhoneTransferPage openInBankTransfer() {
+        String item = switch (Platform.current()) {
+            case ANDROID -> "Перевод внутри банка";
+            case IOS -> "Переводы внутри банка";
+        };
         openQuickMenuTab();
         new org.openqa.selenium.support.ui.WebDriverWait(driver, Duration.ofSeconds(10))
                 .until(org.openqa.selenium.support.ui.ExpectedConditions.elementToBeClickable(
-                        textLocator("Перевод внутри банка")))
+                        textContainsLocator(item)))
                 .click();
         PhoneTransferPage page = new PhoneTransferPage(driver);
         page.dismissWarning();
         return page;
+    }
+
+    // Locates by a CONTAINS match on visible text/label (cross-platform).
+    private By textContainsLocator(String text) {
+        return switch (Platform.current()) {
+            case IOS -> AppiumBy.iOSNsPredicateString("label CONTAINS '" + text + "' OR name CONTAINS '" + text + "'");
+            case ANDROID -> AppiumBy.androidUIAutomator("new UiSelector().textContains(\"" + text + "\")");
+        };
     }
 
     /** Opens the side menu (drawer) via the header burger button. */

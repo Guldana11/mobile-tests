@@ -17,7 +17,8 @@ import pages.PhoneTransferPage;
  * STOPS there and never taps the final "Подтвердить", so <b>no money moves</b>.
  *
  * <p>Reset-per-method (the BaseTest default): the flow navigates deep, so each case logs in fresh
- * (like {@link TransferTest}). <b>Android-only</b> — iOS is blocked by the iOS transfer-submit issue.
+ * (like {@link TransferTest}). <b>Cross-platform</b> — unlike the "Между своими счетами" transfer, this
+ * flow's submit responds on iOS, so the full happy path reaches the confirmation on both platforms.
  */
 public class PhoneTransferTest extends BaseTest {
 

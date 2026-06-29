@@ -23,6 +23,7 @@
             <class name="tests.BottomNavTest"/>           <!-- 2 кейса: Главная↔Продукты (закрытие quick-menu — iOS skip) -->
             <class name="tests.PullToRefreshTest"/>       <!-- 2 кейса: pull-to-refresh (проверка контейнера — iOS skip) -->
             <class name="tests.TransferIosTest"/>         <!-- T-05 iOS: открытие счёта (coord-tap) → "Переводы" → экран "Между своими счетами" 1 кейс (подтверждение — TODO) -->
+            <class name="tests.PhoneTransferTest"/>       <!-- T-06: перевод по номеру телефона → экран "Подтверждение" (cross-platform, submit на iOS работает) 1 кейс -->
         </classes>
     </test>
 </suite>

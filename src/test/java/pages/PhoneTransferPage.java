@@ -1,5 +1,6 @@
 package pages;
 
+import core.Platform;
 import io.appium.java_client.AppiumBy;
 import io.appium.java_client.AppiumDriver;
 import io.appium.java_client.android.AndroidDriver;
@@ -17,27 +18,27 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The "Перевод внутри банка → По номеру телефона" flow (EPIC 1 / T-06): a within-bank transfer to
- * another person by phone number. Entered from the Быстрое меню (see
- * {@link MainScreenPage#openInBankTransfer()}), after a fraud-warning sheet. The form has a phone
- * field (entering a number resolves the recipient's name), an amount field, a "Я согласен…" terms
- * checkbox, and a submit button that reads "Продолжить" until the form is complete and then becomes
- * "Перевести". Submitting opens the "Подтверждение" review screen — where the test STOPS (it never
- * taps the final "Подтвердить", so no money moves).
+ * The within-bank, by-phone transfer flow (EPIC 1 / T-06): a transfer to another person by phone
+ * number. Entered from the Быстрое меню (see {@link MainScreenPage#openInBankTransfer()}) after a
+ * fraud-warning sheet. The form has a phone field (entering a number resolves the recipient's name),
+ * an amount field, a "Я согласен…" terms checkbox and a "Перевести" submit. Submitting opens the
+ * "Подтверждение" review screen — where the test STOPS (never taps the final "Подтвердить", so no
+ * money moves).
  *
- * <p><b>Android-only.</b> iOS uses a different screen and is blocked by the iOS transfer-submit issue
- * (see {@code TransferIosTest} / project memory).
+ * <p>Cross-platform. Android uses resource-ids; on iOS the form fields are TextFields (phone = first,
+ * amount = the one hinting "Сумма перевода") and the terms checkbox / submit are matched by label.
  */
 public class PhoneTransferPage extends BasePage {
 
-    private static final String PHONE_ID = "kz.bnk.app.dev:id/et_phone";
-    private static final String AMOUNT_ID = "kz.bnk.app.dev:id/et_amount";
+    private static final String ANDROID_PHONE_ID = "kz.bnk.app.dev:id/et_phone";
+    private static final String ANDROID_AMOUNT_ID = "kz.bnk.app.dev:id/et_amount";
     private static final String WARNING_CONTINUE = "Продолжить";
-    private static final String RECIPIENT_MARKER = "Получит перевод";       // appears once the phone resolves
+    private static final String RECIPIENT_MARKER = "Получит перевод";   // "…в BNK" (Android) / "…на BNK" (iOS)
     private static final String AGREE_TEXT = "Я согласен";
-    private static final String SUBMIT = "Перевести";                       // submit after the form is complete
+    private static final String SUBMIT = "Перевести";
     private static final String CONFIRM_TITLE = "Подтверждение";
     private static final String CONFIRM_BUTTON = "Подтвердить";
+    private static final String AMOUNT_HINT = "Сумма";                  // iOS amount TextField hint
 
     public PhoneTransferPage(AppiumDriver driver) {
         super(driver);
@@ -48,23 +49,28 @@ public class PhoneTransferPage extends BasePage {
         List<WebElement> cont = driver.findElements(textLocator(WARNING_CONTINUE));
         if (!cont.isEmpty()) {
             cont.get(0).click();
-            waitVisible(By.id(PHONE_ID), Duration.ofSeconds(10));
+            isShown();
         }
     }
 
     /** True once the form is shown (the phone field is present). */
     public boolean isShown() {
-        return waitVisible(By.id(PHONE_ID), Duration.ofSeconds(15));
+        try {
+            new WebDriverWait(driver, Duration.ofSeconds(15)).until(d -> phoneField() != null);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
-    /** Enters the recipient's phone number and waits for the recipient to resolve. */
+    /** Enters the recipient's phone number. */
     public void enterPhone(String phone) {
-        WebElement field = driver.findElement(By.id(PHONE_ID));
+        WebElement field = phoneField();
         field.click();
         field.sendKeys(phone);
     }
 
-    /** True once the entered phone resolves to a recipient ("Получит перевод в BNK" appears). */
+    /** True once the entered phone resolves to a recipient ("Получит перевод …" appears). */
     public boolean isRecipientResolved() {
         return waitVisible(textLocator(RECIPIENT_MARKER), Duration.ofSeconds(15));
     }
@@ -74,29 +80,39 @@ public class PhoneTransferPage extends BasePage {
         return !driver.findElements(textLocator(namePart)).isEmpty();
     }
 
-    /** Types the amount and closes the keyboard via the IME "Done" action (Back would leave the form). */
+    /** Types the amount and dismisses the keyboard (so it stops covering the submit button). */
     public void enterAmount(String amount) {
-        WebElement field = driver.findElement(By.id(AMOUNT_ID));
+        WebElement field = amountField();
         field.click();
         field.sendKeys(amount);
-        try {
-            ((AndroidDriver) driver).executeScript("mobile: performEditorAction", Map.of("action", "done"));
-        } catch (Exception ignored) {
+        switch (Platform.current()) {
+            case ANDROID -> {
+                try {
+                    ((AndroidDriver) driver).executeScript("mobile: performEditorAction", Map.of("action", "done"));
+                } catch (Exception ignored) {
+                }
+            }
+            case IOS -> {
+                List<WebElement> done = driver.findElements(
+                        AppiumBy.iOSNsPredicateString("label == 'Готово' OR name == 'Готово'"));
+                if (!done.isEmpty()) done.get(0).click();
+            }
         }
     }
 
     /**
      * Checks the "Я согласен…" terms checkbox. The checkbox sits at the left margin of the agree row;
-     * tapping the text itself does NOT toggle it, so we tap the checkbox to the left of the label.
+     * tapping the text itself does NOT toggle it, so we tap to the left of the label.
      */
     public void acceptTerms() {
         List<WebElement> agree = driver.findElements(textLocator(AGREE_TEXT));
         if (agree.isEmpty()) return;
         Rectangle r = agree.get(0).getRect();
-        tapXY(70, r.getY() + r.getHeight() / 2);
+        int x = Platform.current() == Platform.IOS ? 30 : 70;
+        tapXY(x, r.getY() + r.getHeight() / 2);
     }
 
-    /** Taps the submit button ("Перевести", shown once the form is complete) to open the review screen. */
+    /** Taps the "Перевести" submit to open the review screen. */
     public void tapTransfer() {
         new WebDriverWait(driver, Duration.ofSeconds(10))
                 .until(ExpectedConditions.elementToBeClickable(textLocator(SUBMIT)))
@@ -114,8 +130,45 @@ public class PhoneTransferPage extends BasePage {
         return !driver.findElements(textLocator(text)).isEmpty();
     }
 
+    // The phone field: Android resource-id; iOS = the first TextField (top of the form).
+    private WebElement phoneField() {
+        return switch (Platform.current()) {
+            case ANDROID -> {
+                List<WebElement> e = driver.findElements(By.id(ANDROID_PHONE_ID));
+                yield e.isEmpty() ? null : e.get(0);
+            }
+            case IOS -> {
+                List<WebElement> tfs = textFieldsIos();
+                yield tfs.isEmpty() ? null : tfs.get(0);
+            }
+        };
+    }
+
+    // The amount field: Android resource-id; iOS = the TextField hinting "Сумма перевода".
+    private WebElement amountField() {
+        return switch (Platform.current()) {
+            case ANDROID -> driver.findElement(By.id(ANDROID_AMOUNT_ID));
+            case IOS -> {
+                for (WebElement f : textFieldsIos()) {
+                    String v = f.getText();
+                    if (v != null && v.contains(AMOUNT_HINT)) yield f;
+                }
+                List<WebElement> tfs = textFieldsIos();
+                yield tfs.size() > 1 ? tfs.get(1) : tfs.get(0);
+            }
+        };
+    }
+
+    private List<WebElement> textFieldsIos() {
+        return driver.findElements(AppiumBy.iOSNsPredicateString("type == 'XCUIElementTypeTextField'"));
+    }
+
+    // CONTAINS match on visible text/label (cross-platform).
     private By textLocator(String text) {
-        return AppiumBy.androidUIAutomator("new UiSelector().textContains(\"" + text + "\")");
+        return switch (Platform.current()) {
+            case IOS -> AppiumBy.iOSNsPredicateString("label CONTAINS '" + text + "' OR name CONTAINS '" + text + "'");
+            case ANDROID -> AppiumBy.androidUIAutomator("new UiSelector().textContains(\"" + text + "\")");
+        };
     }
 
     private void tapXY(int x, int y) {
