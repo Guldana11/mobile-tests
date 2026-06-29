@@ -24,6 +24,7 @@ public class PasswordPage extends BasePage {
     private static final String ANDROID_AUTH_BUTTON = "kz.bnk.app.dev:id/btn";
     private static final String ANDROID_FORGOT_PASSWORD = "kz.bnk.app.dev:id/forgot_password";
     private static final String ANDROID_LOADING = "kz.bnk.app.dev:id/lav_loading";
+    private static final String ANDROID_PASSWORD_HINT = "Пароль";   // empty-field label, not real content
 
     private static final String IOS_FORGOT_PASSWORD = "Забыли пароль?";
     private static final String IOS_CONTINUE = "Продолжить";
@@ -56,7 +57,33 @@ public class PasswordPage extends BasePage {
         WebElement field = driver.findElement(passwordFieldLocator());
         field.click();
         ensureLatinKeyboard();
-        field.sendKeys(password);
+        switch (Platform.current()) {
+            case IOS -> field.sendKeys(password);
+            case ANDROID -> typeAndroidPassword(field, password);
+        }
+    }
+
+    /**
+     * Android: UiAutomator2 {@code sendKeys} into the password field is occasionally dropped on a cold
+     * or just-wiped emulator — the field stays empty and login then fails silently (no error, the app
+     * just clears the field). So we type, verify the field actually holds content, and retry (clear +
+     * refocus) a few times. A password EditText reports its content as masked bullets via
+     * accessibility, so a non-blank {@code getText()} (that is not the hint) means the text went in.
+     */
+    private void typeAndroidPassword(WebElement field, String password) {
+        for (int attempt = 0; attempt < 3; attempt++) {
+            try {
+                field.clear();
+            } catch (Exception ignored) {
+                // field may not be clearable when already empty — ignore and type
+            }
+            field.sendKeys(password);
+            String text = field.getText();
+            if (text != null && !text.isBlank() && !text.equals(ANDROID_PASSWORD_HINT)) {
+                return;
+            }
+            field.click();  // refocus before the next attempt
+        }
     }
 
     /**
