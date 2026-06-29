@@ -25,7 +25,8 @@
             <class name="tests.PullToRefreshTest"/>         <!-- pull-to-refresh главного экрана: контейнер + перезагрузка экрана 2 кейс (iOS: тоже; контрол refresh не экспонится — iOS skip) -->
             <class name="tests.TransferTest"/>              <!-- T-05 перевод между своими счетами → экран "Подтверждение" (деньги НЕ двигаются) 2 кейса: Перевести + drag/drop (iOS — отдельным классом TransferIosTest) -->
             <class name="tests.PhoneTransferTest"/>         <!-- T-06 перевод по номеру телефона (внутри банка) → экран "Подтверждение" (деньги НЕ двигаются) 1 кейс (iOS: тоже, кросс-платформенно) -->
-            <class name="tests.TransferValidationTest"/>   <!-- T-08 валидации формы перевода: submit disabled без суммы/согласия; сумма > лимита (100M) отклоняется 2 кейса (iOS verified; Android — pending live run) -->
+            <class name="tests.AccountNumberTransferTest"/> <!-- T-07 перевод по номеру счёта: резолв получателя (ИИН+счёт) → источник (дефолтный)/КНП → экран "Подтверждение" (деньги НЕ двигаются) 2 кейса (кросс-платформенно, Android verified) -->
+            <class name="tests.TransferValidationTest"/>   <!-- T-08 валидации формы перевода: submit disabled без суммы/согласия; сумма > лимита (100M) отклоняется — на Android submit остаётся disabled + ошибка inline (не жмём) 2 кейса (verified iOS + Android) -->
             <class name="tests.SecurityTest"/>              <!-- EPIC 7 безопасность: SEC-4 маскирование пароля, SEC-3 перевод требует OTP (не двигает деньги) 2 кейса -->
         </classes>
     </test>

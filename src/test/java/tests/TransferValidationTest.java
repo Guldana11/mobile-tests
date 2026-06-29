@@ -15,12 +15,14 @@ import pages.PhoneTransferPage;
  *   <li><b>Empty fields</b> — the "Перевести" submit is disabled until a recipient resolves AND an
  *       amount is entered AND the terms are accepted; it becomes enabled once they are.</li>
  *   <li><b>Over the per-transfer limit</b> — an amount above the cap (100 000 000 ₸) is rejected with
- *       "должно быть меньше или равно 100000000" and never reaches the confirmation screen.</li>
+ *       "должно быть меньше или равно 100000000" and never reaches the confirmation screen. On Android
+ *       the over-limit amount keeps the "Перевести" submit DISABLED and shows the error inline (so the
+ *       test does not tap); on iOS the submit is tappable and surfaces the error on tap.</li>
  * </ul>
  *
  * <p>Reset-per-method (the BaseTest default): each case logs in fresh, like {@link PhoneTransferTest}.
  * No money moves (the over-limit case is rejected; the gating case never submits). Cross-platform —
- * verified on iOS; the Android branch reuses the same locators (pending a live Android run).
+ * verified on both iOS and Android.
  */
 public class TransferValidationTest extends BaseTest {
 
@@ -65,7 +67,14 @@ public class TransferValidationTest extends BaseTest {
 
         transfer.enterAmount("99999999999");   // far above the 100 000 000 ₸ cap
         transfer.acceptTerms();
-        transfer.tapTransfer();
+
+        // The over-limit amount gates the submit. On Android "Перевести" STAYS DISABLED and the error
+        // shows inline (verified live), so there is nothing to tap; on iOS the submit is tappable and
+        // surfaces the error on tap. Only tap when the button is actually enabled, so neither platform
+        // waits on a never-clickable button.
+        if (transfer.isSubmitEnabled()) {
+            transfer.tapTransfer();
+        }
 
         Assert.assertTrue(transfer.isOverLimitErrorShown(),
                 "An over-limit amount should show the 'должно быть меньше…' validation error");

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<AppiumAUT>
+  <XCUIElementTypeApplication type="XCUIElementTypeApplication" name="BNK Test" label="BNK Test" enabled="true" visible="true" accessible="false" x="0" y="0" width="402" height="874" index="0" traits="" processId="56463" bundleId="ibn.bnk.kz">
+    <XCUIElementTypeWindow type="XCUIElementTypeWindow" enabled="true" visible="true" accessible="false" x="0" y="0" width="402" height="874" index="0" traits="">
+      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="true" accessible="false" x="0" y="0" width="402" height="874" index="0" traits="">
+        <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="true" accessible="false" x="0" y="0" width="402" height="874" index="0" traits="">
+          <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="true" accessible="false" x="0" y="0" width="402" height="874" index="0" traits="">
+            <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="true" accessible="false" x="0" y="0" width="402" height="874" index="0" traits="">
+              <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="true" accessible="false" x="0" y="62" width="402" height="778" index="0" traits=""/>
+              <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="true" accessible="false" x="0" y="0" width="402" height="874" index="1" traits="">
+                <XCUIElementTypeNavigationBar type="XCUIElementTypeNavigationBar" name="Переводы внутри банка" enabled="true" visible="true" accessible="false" x="0" y="56" width="402" height="45" index="0" traits="">
+                  <XCUIElementTypeButton type="XCUIElementTypeButton" name="BackButton" label="Назад" enabled="true" visible="true" accessible="true" x="0" y="56" width="50" height="45" index="0" traits="Button"/>
+                  <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="Переводы внутри банка" name="Переводы внутри банка" label="Переводы внутри банка" enabled="true" visible="true" accessible="true" x="100" y="68" width="202" height="21" index="1" traits="Header"/>
+                </XCUIElementTypeNavigationBar>
+                <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="true" accessible="false" x="0" y="0" width="402" height="874" index="1" traits="">
+                  <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="true" accessible="false" x="0" y="0" width="402" height="874" index="0" traits="">
+                    <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="true" accessible="false" x="0" y="0" width="402" height="874" index="0" traits="">
+                      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="true" accessible="false" x="0" y="0" width="402" height="874" index="0" traits="">
+                        <XCUIElementTypeScrollView type="XCUIElementTypeScrollView" enabled="true" visible="true" accessible="false" x="0" y="0" width="402" height="874" index="0" traits="">
+                          <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="true" accessible="false" x="0" y="-101" width="402" height="957" index="0" traits="">
+                            <XCUIElementTypeSegmentedControl type="XCUIElementTypeSegmentedControl" enabled="true" visible="false" accessible="false" x="16" y="-85" width="370" height="32" index="0" traits="">
+                              <XCUIElementTypeButton type="XCUIElementTypeButton" name="По номеру телефона" label="По номеру телефона" enabled="true" visible="false" accessible="true" x="16" y="-85" width="184" height="33" index="0" traits="Button"/>
+                              <XCUIElementTypeButton type="XCUIElementTypeButton" value="1" name="По номеру счета" label="По номеру счета" enabled="true" visible="false" accessible="true" x="201" y="-85" width="185" height="33" index="1" traits="Selected, Button"/>
+                            </XCUIElementTypeSegmentedControl>
+                            <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="15 500.00 ₸" name="15 500.00 ₸" label="15 500.00 ₸" enabled="true" visible="false" accessible="true" x="88" y="2" width="105" height="23" index="1" traits="StaticText"/>
+                            <XCUIElementTypeImage type="XCUIElementTypeImage" name="Account/currency/kzt" label="Account/currency/kzt" enabled="true" visible="false" accessible="true" x="40" y="17" width="24" height="25" index="2" traits="Image"/>
+                            <XCUIElementTypeImage type="XCUIElementTypeImage" name="Common/alt-arrow-down" label="Common/alt-arrow-down" enabled="true" visible="false" accessible="true" x="354" y="21" width="16" height="17" index="3" traits="Image"/>
+                            <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="Текущий счет *400132" name="Текущий счет *400132" label="Текущий счет *400132" enabled="true" visible="false" accessible="true" x="88" y="30" width="179" height="20" index="4" traits="StaticText"/>
+                            <XCUIElementTypeTextField type="XCUIElementTypeTextField" value="750413402142" label="" enabled="true" visible="true" accessible="true" x="32" y="99" width="338" height="57" index="5" placeholderValue="ИИН" traits=""/>
+                            <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="ГАУХАР С. *400080" name="ГАУХАР С. *400080" label="ГАУХАР С. *400080" enabled="true" visible="true" accessible="true" x="24" y="167" width="156" height="20" index="6" traits="StaticText"/>
+                            <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="Получит перевод на BNK" name="Получит перевод на BNK" label="Получит перевод на BNK" enabled="true" visible="true" accessible="true" x="24" y="191" width="148" height="15" index="7" traits="StaticText"/>
+                            <XCUIElementTypeTextField type="XCUIElementTypeTextField" value="220400080" label="" enabled="true" visible="true" accessible="true" x="32" y="241" width="338" height="57" index="8" placeholderValue="Номер счета" traits=""/>
+                            <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="Введите последние 9 цифр счета" name="Введите последние 9 цифр счета" label="Введите последние 9 цифр счета" enabled="true" visible="true" accessible="true" x="32" y="301" width="197" height="16" index="9" traits="StaticText"/>
+                            <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="Резидент" name="Резидент" label="Резидент" enabled="true" visible="true" accessible="true" x="16" y="338" width="75" height="20" index="10" traits="StaticText"/>
+                            <XCUIElementTypeSwitch type="XCUIElementTypeSwitch" value="1" enabled="true" visible="true" accessible="true" x="98" y="332" width="288" height="32" index="11" traits="ToggleButton, Button">
+                              <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" enabled="true" visible="false" accessible="false" x="0" y="0" width="0" height="0" index="0" traits="StaticText"/>
+                              <XCUIElementTypeSwitch type="XCUIElementTypeSwitch" value="1" enabled="true" visible="true" accessible="false" x="337" y="332" width="51" height="32" index="1" traits="ToggleButton, Button"/>
+                            </XCUIElementTypeSwitch>
+                            <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="КНП" name="КНП" label="КНП" enabled="true" visible="true" accessible="true" x="32" y="395" width="34" height="20" index="12" traits="StaticText"/>
+                            <XCUIElementTypeImage type="XCUIElementTypeImage" name="Common/alt-arrow-right" label="Common/alt-arrow-right" enabled="true" visible="true" accessible="true" x="354" y="409" width="16" height="17" index="13" traits="Image"/>
+                            <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="119 - Прочие безвозмездные переводы денег" name="119 - Прочие безвозмездные переводы денег" label="119 - Прочие безвозмездные переводы денег" enabled="true" visible="true" accessible="true" x="32" y="418" width="280" height="22" index="14" traits="StaticText"/>
+                            <XCUIElementTypeTextField type="XCUIElementTypeTextField" value="1 000 ₸" label="" enabled="true" visible="true" accessible="true" x="32" y="482" width="338" height="57" index="15" placeholderValue="Сумма перевода" traits=""/>
+                            <XCUIElementTypeTextField type="XCUIElementTypeTextField" value="Сообщение" label="" enabled="true" visible="true" accessible="true" x="32" y="555" width="338" height="68" index="16" placeholderValue="Сообщение" traits=""/>
+                            <XCUIElementTypeButton type="XCUIElementTypeButton" name="Спасибо!" label="Спасибо!" enabled="true" visible="true" accessible="true" x="16" y="639" width="96" height="33" index="17" traits="Button"/>
+                            <XCUIElementTypeButton type="XCUIElementTypeButton" name="На обед" label="На обед" enabled="true" visible="true" accessible="true" x="120" y="639" width="89" height="33" index="18" traits="Button"/>
+                            <XCUIElementTypeButton type="XCUIElementTypeButton" name="Common/check" label="Common/check" enabled="true" visible="true" accessible="true" x="15" y="694" width="22" height="22" index="19" traits="Button"/>
+                            <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="Я согласен с условиями перевода и уведомлен о возможных рисках." name="Я согласен с условиями перевода и уведомлен о возможных рисках." label="Я согласен с условиями перевода и уведомлен о возможных рисках." enabled="true" visible="true" accessible="true" x="48" y="688" width="332" height="34" index="20" traits="StaticText">
+                              <XCUIElementTypeLink type="XCUIElementTypeLink" name="app://terms" label="условиями перевода" enabled="true" visible="true" accessible="false" x="138" y="688" width="146" height="17" index="0" traits="Link"/>
+                              <XCUIElementTypeLink type="XCUIElementTypeLink" name="app://risks" label="рисках" enabled="true" visible="true" accessible="false" x="143" y="704" width="49" height="18" index="1" traits="Link"/>
+                            </XCUIElementTypeStaticText>
+                            <XCUIElementTypeButton type="XCUIElementTypeButton" name="Перевести" label="Перевести" enabled="true" visible="true" accessible="true" x="16" y="737" width="370" height="61" index="21" traits="Button"/>
+                          </XCUIElementTypeOther>
+                        </XCUIElementTypeScrollView>
+                      </XCUIElementTypeOther>
+                    </XCUIElementTypeOther>
+                  </XCUIElementTypeOther>
+                </XCUIElementTypeOther>
+              </XCUIElementTypeOther>
+            </XCUIElementTypeOther>
+          </XCUIElementTypeOther>
+        </XCUIElementTypeOther>
+      </XCUIElementTypeOther>
+    </XCUIElementTypeWindow>
+    <XCUIElementTypeWindow type="XCUIElementTypeWindow" enabled="true" visible="false" accessible="false" x="0" y="0" width="402" height="874" index="1" traits="">
+      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="false" accessible="false" x="0" y="0" width="402" height="874" index="0" traits="">
+        <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="false" accessible="false" x="0" y="0" width="402" height="874" index="0" traits=""/>
+      </XCUIElementTypeOther>
+    </XCUIElementTypeWindow>
+  </XCUIElementTypeApplication>
+</AppiumAUT>

@@ -33,6 +33,13 @@ public class PhoneTransferPage extends BasePage {
 
     private static final String ANDROID_PHONE_ID = "kz.bnk.app.dev:id/et_phone";
     private static final String ANDROID_AMOUNT_ID = "kz.bnk.app.dev:id/et_amount";
+    // By-account ("По номеру счёта") form ids (Android). The form shares et_amount/check/btn with by-phone.
+    private static final String ANDROID_IIN_ID = "kz.bnk.app.dev:id/et_iin";
+    private static final String ANDROID_ACCOUNT_ID = "kz.bnk.app.dev:id/et_account_number";
+    private static final String ANDROID_KNP_ID = "kz.bnk.app.dev:id/et_knp";
+    private static final String ANDROID_CHECK_ID = "kz.bnk.app.dev:id/check";          // "Я согласен…" checkbox
+    private static final String ANDROID_SUBMIT_ID = "kz.bnk.app.dev:id/btn";            // "Перевести" submit
+    private static final String ANDROID_BY_ACCOUNT_DESC = "По номеру счета";            // tab content-description
     private static final String WARNING_CONTINUE = "Продолжить";
     private static final String RECIPIENT_MARKER = "Получит перевод";   // "…в BNK" (Android) / "…на BNK" (iOS)
     private static final String AGREE_TEXT = "Я согласен";
@@ -105,10 +112,19 @@ public class PhoneTransferPage extends BasePage {
     }
 
     /**
-     * Checks the "Я согласен…" terms checkbox. The checkbox sits at the left margin of the agree row;
-     * tapping the text itself does NOT toggle it, so we tap to the left of the label.
+     * Checks the "Я согласен…" terms checkbox. On Android the checkbox is a real CheckBox (id "check"),
+     * tapped directly. On iOS there is no a11y node for it: the checkbox sits at the left margin of the
+     * agree row and tapping the text does not toggle it, so we tap to the left of the label by coordinates.
      */
     public void acceptTerms() {
+        if (Platform.current() == Platform.ANDROID) {
+            List<WebElement> check = driver.findElements(By.id(ANDROID_CHECK_ID));
+            if (!check.isEmpty()) {
+                check.get(0).click();
+                return;
+            }
+            // fall through to the coordinate tap if the id ever disappears
+        }
         List<WebElement> agree = driver.findElements(textLocator(AGREE_TEXT));
         if (agree.isEmpty()) return;
         Rectangle r = agree.get(0).getRect();
@@ -116,10 +132,162 @@ public class PhoneTransferPage extends BasePage {
         tapXY(x, r.getY() + r.getHeight() / 2);
     }
 
+    // Submits the focused Android text field via the IME "done" action (dismisses the keyboard).
+    private void androidDone() {
+        try {
+            ((AndroidDriver) driver).executeScript("mobile: performEditorAction", Map.of("action", "done"));
+        } catch (Exception ignored) {
+        }
+    }
+
+    // ---- By-account ("По номеру счёта") flow — same form as by-phone, with extra fields. ----
+    //
+    // Cross-platform, but the two platforms differ in how the extra fields are reached:
+    //  * Android exposes clean resource-ids (et_iin, et_account_number, et_knp, check, btn) and a
+    //    by-account tab carrying the content-description "По номеру счета"; the source account comes
+    //    pre-selected (a funded current account) so selectSourceAccount keeps the default.
+    //  * iOS has no usable a11y ids, so the form is driven by TextFields + label matching (see
+    //    project_ios_a11y_tree) and the source/КНП are bottom-sheet selectors.
+
+    private static final String BY_ACCOUNT_TAB = "номеру сч";          // "По номеру счета" tab button (iOS)
+    private static final String SOURCE_SELECTOR = "Выберите счет";     // source-account selector (iOS)
+    private static final String KNP_SELECTOR = "КНП";                  // payment-purpose selector (iOS)
+    private static final String FORM_TITLE = "Переводы внутри банка";  // neutral area to blur a field (iOS)
+
+    /** Switches the transfer form to the "По номеру счета" tab. */
+    public void switchToByAccount() {
+        switch (Platform.current()) {
+            case ANDROID -> {
+                driver.findElement(AppiumBy.androidUIAutomator(
+                        "new UiSelector().description(\"" + ANDROID_BY_ACCOUNT_DESC + "\")")).click();
+                waitVisible(By.id(ANDROID_IIN_ID), Duration.ofSeconds(10));
+            }
+            case IOS -> {
+                driver.findElement(AppiumBy.iOSNsPredicateString("type == 'XCUIElementTypeButton' AND "
+                        + "(label CONTAINS '" + BY_ACCOUNT_TAB + "' OR name CONTAINS '" + BY_ACCOUNT_TAB + "')")).click();
+                waitVisible(AppiumBy.iOSNsPredicateString("type == 'XCUIElementTypeTextField'"), Duration.ofSeconds(10));
+            }
+        }
+    }
+
+    /** Fills the recipient IIN + account-number fields, dismissing the keyboard after each. */
+    public void enterAccountRecipient(String iin, String account) {
+        switch (Platform.current()) {
+            case ANDROID -> {
+                WebElement iinField = driver.findElement(By.id(ANDROID_IIN_ID));
+                iinField.click();
+                iinField.sendKeys(iin);
+                WebElement acc = driver.findElement(By.id(ANDROID_ACCOUNT_ID));
+                acc.click();
+                acc.sendKeys(account);
+                androidDone();   // submit the account field so the recipient resolves ("Получит перевод…")
+            }
+            case IOS -> {
+                List<WebElement> tfs = textFieldsIos();
+                tfs.get(0).click();
+                tfs.get(0).sendKeys(iin);
+                dismissKeyboard();
+                WebElement acc = textFieldsIos().get(1);
+                acc.click();
+                acc.sendKeys(account);
+                dismissKeyboard();
+            }
+        }
+    }
+
+    /**
+     * Selects the source account. On iOS the source-account selector is opened and the row whose label
+     * contains {@code marker} is picked. On Android the form opens with a funded current account already
+     * selected, so the default is kept and {@code marker} is ignored.
+     */
+    public void selectSourceAccount(String marker) {
+        if (Platform.current() == Platform.ANDROID) {
+            return;  // a funded source is pre-selected by default; nothing to do
+        }
+        driver.findElement(textLocator(SOURCE_SELECTOR)).click();
+        pickRowByMarker(marker);
+    }
+
+    /** Opens the КНП selector and picks the entry whose code is {@code code} (e.g. "119"). */
+    public void selectKnp(String code) {
+        switch (Platform.current()) {
+            case ANDROID -> {
+                driver.findElement(By.id(ANDROID_KNP_ID)).click();
+                // The picker is a recycler_view of tv_code/tv_label rows; tap the row carrying the code.
+                new WebDriverWait(driver, Duration.ofSeconds(10))
+                        .until(ExpectedConditions.elementToBeClickable(AppiumBy.androidUIAutomator(
+                                "new UiSelector().text(\"" + code + "\")")))
+                        .click();
+            }
+            case IOS -> {
+                driver.findElement(AppiumBy.iOSNsPredicateString(
+                        "label == '" + KNP_SELECTOR + "' OR name == '" + KNP_SELECTOR + "'")).click();
+                new WebDriverWait(driver, Duration.ofSeconds(10))
+                        .until(ExpectedConditions.elementToBeClickable(AppiumBy.iOSNsPredicateString(
+                                "type == 'XCUIElementTypeButton' AND "
+                                        + "(name BEGINSWITH '" + code + "' OR label BEGINSWITH '" + code + "')")))
+                        .click();
+            }
+        }
+    }
+
+    /**
+     * iOS: dismisses the on-screen keyboard. The by-account form is tall, so the keyboard covers the
+     * agree row + submit (they report {@code visible=false} and the checkbox is not hittable) — the
+     * form cannot be submitted until the keyboard is gone. Taps "Готово"; if it lingers, taps the
+     * neutral screen title to blur the focused field.
+     */
+    public void dismissKeyboard() {
+        if (Platform.current() == Platform.ANDROID) {
+            androidDone();   // Android dismisses the IME via the field's "done" action, not "Готово"
+            return;
+        }
+        for (int i = 0; i < 3 && isKeyboardUp(); i++) {
+            List<WebElement> done = driver.findElements(
+                    AppiumBy.iOSNsPredicateString("label == 'Готово' OR name == 'Готово'"));
+            if (!done.isEmpty()) done.get(0).click();
+            if (!isKeyboardUp()) return;
+            List<WebElement> title = driver.findElements(textLocator(FORM_TITLE));
+            if (!title.isEmpty()) title.get(0).click();
+            try { Thread.sleep(400); } catch (InterruptedException ignored) {}
+        }
+    }
+
+    private boolean isKeyboardUp() {
+        return !driver.findElements(
+                AppiumBy.iOSNsPredicateString("type == 'XCUIElementTypeKeyboard'")).isEmpty();
+    }
+
+    // Picks a selector row (account) whose button name/label contains the marker, scrolling if needed.
+    private void pickRowByMarker(String marker) {
+        By row = AppiumBy.iOSNsPredicateString("type == 'XCUIElementTypeButton' AND "
+                + "(name CONTAINS '" + marker + "' OR label CONTAINS '" + marker + "')");
+        for (int i = 0; i < 12; i++) {
+            for (WebElement el : driver.findElements(row)) {
+                if ("true".equals(el.getAttribute("visible"))) {
+                    el.click();
+                    return;
+                }
+            }
+            swipeUpIos();
+            try { Thread.sleep(300); } catch (InterruptedException ignored) {}
+        }
+        throw new org.openqa.selenium.NoSuchElementException("account row not found: " + marker);
+    }
+
+    private void swipeUpIos() {
+        PointerInput f = new PointerInput(PointerInput.Kind.TOUCH, "finger");
+        driver.perform(Collections.singletonList(new Sequence(f, 1)
+                .addAction(f.createPointerMove(Duration.ZERO, PointerInput.Origin.viewport(), 200, 600))
+                .addAction(f.createPointerDown(0))
+                .addAction(f.createPointerMove(Duration.ofMillis(300), PointerInput.Origin.viewport(), 200, 280))
+                .addAction(f.createPointerUp(0))));
+    }
+
     /** Taps the "Перевести" submit to open the review screen. */
     public void tapTransfer() {
         new WebDriverWait(driver, Duration.ofSeconds(10))
-                .until(ExpectedConditions.elementToBeClickable(textLocator(SUBMIT)))
+                .until(ExpectedConditions.elementToBeClickable(submitButtonLocator()))
                 .click();
     }
 
@@ -142,7 +310,7 @@ public class PhoneTransferPage extends BasePage {
         return switch (Platform.current()) {
             case IOS -> AppiumBy.iOSNsPredicateString("type == 'XCUIElementTypeButton' AND "
                     + "(label CONTAINS '" + SUBMIT + "' OR name CONTAINS '" + SUBMIT + "')");
-            case ANDROID -> textLocator(SUBMIT);
+            case ANDROID -> By.id(ANDROID_SUBMIT_ID);
         };
     }
 
