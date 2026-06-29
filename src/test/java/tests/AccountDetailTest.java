@@ -17,11 +17,10 @@ import pages.MainScreenPage;
  * every case (the BaseTest reset-per-method default). Slower, but robust and order-independent; a
  * shared session needed fragile back-navigation recovery that flaked under load in the full suite.
  *
- * <p><b>Android-only by design:</b> on iOS this build renders the account list as unnamed container
- * elements with loose static-text leaves — there is no tappable account cell in the accessibility
- * tree, so opening an account would require a fragile coordinate tap. Kept in android.xml only;
- * revisit if a future iOS build exposes account cells. (The detail screen's back arrow is "BackButton"
- * on iOS, already wired in {@link AccountDetailPage} for when that happens.)
+ * <p><b>Cross-platform.</b> Opening an account on iOS uses a coordinate tap (the a11y tree has no
+ * tappable account cell — see {@link MainScreenPage#openFirstAccount()}); the detail screen itself is
+ * handled per-platform in {@link AccountDetailPage} (iOS has no "Доступный" label, the transfer action
+ * is "Переводы", back is "chevron.left"). Registered in both android.xml and ios.xml.
  */
 public class AccountDetailTest extends BaseTest {
 

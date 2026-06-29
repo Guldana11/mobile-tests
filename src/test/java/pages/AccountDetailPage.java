@@ -15,11 +15,11 @@ import java.time.Duration;
  * "Реквизиты") and the two tabs ("История" / "Настройки"). A back arrow in the toolbar returns to
  * the main screen.
  *
- * <p><b>iOS:</b> locators below are VERIFIED on Android only — the screen has not yet been captured
- * on the simulator, so this page (and {@code AccountDetailTest}) runs in the Android suite only.
- * The text markers ("Доступный", "Перевести", …) are locale labels shared by both platforms and
- * should port directly; the back arrow id needs confirming against an iOS dump before adding to
- * ios.xml.
+ * <p><b>Cross-platform.</b> The iOS detail screen was captured on the simulator and differs: it has
+ * no "Доступный" label (so iOS identifies the screen by the detail-only "Реквизиты" action), the
+ * transfer action reads "Переводы" (plural) instead of "Перевести", and the toolbar back arrow is
+ * "chevron.left" (not "BackButton"). The tabs ("История"/"Настройки") match. These differences are
+ * handled per-platform below.
  */
 public class AccountDetailPage extends BasePage {
 
@@ -32,20 +32,31 @@ public class AccountDetailPage extends BasePage {
     private static final String TAB_SETTINGS = "Настройки";
 
     private static final String ANDROID_BACK_ID = "kz.bnk.app.dev:id/iv_back";
-    private static final String IOS_BACK = "BackButton";  // verified on iOS sub-screens; this class is Android-only.
+    private static final String IOS_BACK = "chevron.left";  // the detail screen's toolbar back (not "BackButton")
 
     public AccountDetailPage(AppiumDriver driver) {
         super(driver);
     }
 
-    /** True once the detail screen is shown (its unique "Доступный" balance label appears). */
+    /**
+     * True once the detail screen is shown. Android has a unique "Доступный" balance label; the iOS
+     * build does not, so iOS keys off the detail-only "Реквизиты" action instead.
+     */
     public boolean isDisplayed() {
-        return waitVisible(textLocator(AVAILABLE_LABEL), Duration.ofSeconds(15));
+        String marker = switch (Platform.current()) {
+            case ANDROID -> AVAILABLE_LABEL;
+            case IOS -> ACTION_REQUISITES;
+        };
+        return waitVisible(textLocator(marker), Duration.ofSeconds(15));
     }
 
-    /** True if both action buttons ("Перевести" and "Реквизиты") are present. */
+    /** True if both action buttons (transfer and "Реквизиты") are present. */
     public boolean hasActions() {
-        return !driver.findElements(textLocator(ACTION_TRANSFER)).isEmpty()
+        String transfer = switch (Platform.current()) {
+            case ANDROID -> ACTION_TRANSFER;
+            case IOS -> IOS_ACTION_TRANSFER;
+        };
+        return !driver.findElements(textLocator(transfer)).isEmpty()
                 && !driver.findElements(textLocator(ACTION_REQUISITES)).isEmpty();
     }
 
