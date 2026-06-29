@@ -150,6 +150,22 @@ public class PasswordPage extends BasePage {
         }
     }
 
+    /**
+     * True if the password input masks its content (secure entry) rather than echoing plaintext.
+     * iOS renders the field as a {@code XCUIElementTypeSecureTextField} (the platform's masking
+     * control); Android exposes a {@code password=true} attribute on the EditText.
+     */
+    public boolean isPasswordMasked() {
+        return switch (Platform.current()) {
+            case IOS -> !driver.findElements(
+                    AppiumBy.className("XCUIElementTypeSecureTextField")).isEmpty();
+            case ANDROID -> {
+                WebElement f = driver.findElement(By.id(ANDROID_PASSWORD_FIELD));
+                yield "true".equals(f.getAttribute("password"));
+            }
+        };
+    }
+
     private By passwordFieldLocator() {
         return switch (Platform.current()) {
             case ANDROID -> AppiumBy.id(ANDROID_PASSWORD_FIELD);

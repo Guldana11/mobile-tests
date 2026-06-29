@@ -25,6 +25,7 @@
             <class name="tests.PullToRefreshTest"/>         <!-- pull-to-refresh главного экрана: контейнер + перезагрузка экрана 2 кейс (iOS TODO) -->
             <class name="tests.TransferTest"/>              <!-- T-05 перевод между своими счетами → экран "Подтверждение" (деньги НЕ двигаются) 2 кейса: Перевести + drag/drop (iOS TODO) -->
             <class name="tests.PhoneTransferTest"/>         <!-- T-06 перевод по номеру телефона (внутри банка) → экран "Подтверждение" (деньги НЕ двигаются) 1 кейс (iOS TODO) -->
+            <class name="tests.SecurityTest"/>              <!-- EPIC 7 безопасность: SEC-4 маскирование пароля, SEC-3 перевод требует OTP (не двигает деньги) 2 кейса -->
         </classes>
     </test>
 </suite>
