@@ -6,10 +6,14 @@ import io.appium.java_client.AppiumDriver;
 import io.appium.java_client.android.AndroidDriver;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.PointerInput;
+import org.openqa.selenium.interactions.Sequence;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -20,10 +24,10 @@ import java.util.Map;
  * tapping "Продолжить" leads to the "Подтверждение" review screen — where the test STOPS (it never
  * taps the final "Подтвердить", so no money moves).
  *
- * <p><b>Android-only.</b> The iOS flow is a different screen ("Между своими счетами" with a single
- * destination selector and a TextField) and is blocked upstream by the iOS account-open issue (no
- * tappable account cell in the a11y tree — see {@code AccountDetailTest}). iOS support is a separate
- * task; this page deliberately uses Android resource-ids only.
+ * <p><b>Cross-platform.</b> Android uses the "Сумма перевода" sheet (resource-ids, see the methods
+ * below). iOS uses a dedicated "Между своими счетами" screen with a source selector, a "Выберите счет"
+ * destination selector, an amount TextField and a "Перевести" submit — see the {@code …Ios} methods.
+ * Both stop at the "Подтверждение" review screen (never tap the final "Подтвердить", so no money moves).
  */
 public class TransferPage extends BasePage {
 
@@ -44,14 +48,23 @@ public class TransferPage extends BasePage {
         super(driver);
     }
 
-    // ---- iOS (UNVERIFIED draft — written from inspector dumps, confirm on a live simulator) ----
-    // The iOS transfer screen differs from Android: a dedicated "Между своими счетами" screen with the
-    // source account, a "Выберите счет" destination selector, an amount TextField and a "Перевести"
-    // submit button (back = "BackButton"). The destination picker and the confirmation screen were NOT
-    // mapped yet — see the TODOs below.
+    // ---- iOS "Между своими счетами" happy path (verified on a live simulator) ----
+    // The iOS transfer screen differs from Android: a dedicated "Между своими счетами" screen with a
+    // SOURCE selector (auto-selects a deposit, which cannot be debited — so we re-pick a funded current
+    // account), a "Выберите счет" DESTINATION selector, an amount TextField ("Сумма перевода") and a
+    // "Перевести" submit. Both selectors open the SAME full account picker (rows are buttons whose name
+    // is "<balance>, <account>, <IBAN>"); back = "BackButton".
     private static final String IOS_BETWEEN_OWN = "Между своими счетами";
     private static final String IOS_SUBMIT = "Перевести";
     private static final String IOS_PICK_DESTINATION = "Выберите счет";
+    private static final String IOS_CONFIRM_TITLE = "Подтверждение";
+    private static final String IOS_CONFIRM_BUTTON = "Подтвердить";
+    private static final String IOS_SOURCE_CHEVRON = "Common/alt-arrow-down";
+    private static final String IOS_DONE_KEY = "Готово";
+    // Test-data own accounts: a funded current account (source) and a distinct current account (dest),
+    // identified by their masked numbers. Both are own accounts, so stopping at confirmation moves no money.
+    public static final String IOS_SOURCE_MARKER = "*400896";        // 49 585 688 ₸, funded current
+    public static final String IOS_DESTINATION_MARKER = "*400888";   // 500 ₸, distinct current
 
     /** True once the "Сумма перевода" sheet is shown (amount field + Продолжить button present). */
     public boolean isAmountSheetShown() {
@@ -71,11 +84,81 @@ public class TransferPage extends BasePage {
         };
     }
 
-    // TODO(iOS, next session): map and implement on a live simulator —
-    //   - tap IOS_PICK_DESTINATION → the account picker, select a distinct own account;
-    //   - enter the amount into the iOS TextField (no IME-done hack needed);
-    //   - tap IOS_SUBMIT and assert the iOS confirmation screen (markers not captured yet).
-    // Until then the iOS path only covers reaching isTransferEntryShown().
+    /**
+     * iOS: re-pick the SOURCE account (the screen auto-selects a deposit that cannot be debited) to a
+     * funded current account, via the top selector's chevron, by masked-number marker.
+     */
+    public void selectSourceIos(String marker) {
+        driver.findElements(AppiumBy.accessibilityId(IOS_SOURCE_CHEVRON)).get(0).click();
+        pickAccountIos(marker);
+    }
+
+    /** iOS: pick a distinct DESTINATION own account via the "Выберите счет" selector, by marker. */
+    public void selectDestinationIos(String marker) {
+        new WebDriverWait(driver, Duration.ofSeconds(10))
+                .until(ExpectedConditions.elementToBeClickable(iosLabel(IOS_PICK_DESTINATION)))
+                .click();
+        pickAccountIos(marker);
+    }
+
+    /** iOS: type the amount into the "Сумма перевода" TextField and dismiss the keyboard. */
+    public void enterAmountIos(String amount) {
+        WebElement field = driver.findElements(
+                AppiumBy.iOSNsPredicateString("type == 'XCUIElementTypeTextField'")).get(0);
+        field.click();
+        field.sendKeys(amount);
+        List<WebElement> done = driver.findElements(iosLabel(IOS_DONE_KEY));
+        if (!done.isEmpty()) done.get(0).click();
+    }
+
+    /** iOS: tap the "Перевести" submit to open the "Подтверждение" review screen. */
+    public void tapSubmitIos() {
+        new WebDriverWait(driver, Duration.ofSeconds(10))
+                .until(ExpectedConditions.elementToBeClickable(AppiumBy.accessibilityId(IOS_SUBMIT)))
+                .click();
+    }
+
+    /** iOS: true once the "Подтверждение" review screen with its "Подтвердить" button is shown. */
+    public boolean isConfirmationShownIos() {
+        return waitVisible(iosLabel(IOS_CONFIRM_TITLE), Duration.ofSeconds(25))
+                && !driver.findElements(iosLabel(IOS_CONFIRM_BUTTON)).isEmpty();
+    }
+
+    /** iOS: true if the confirmation screen shows the given text (amount or account). */
+    public boolean confirmationShowsIos(String text) {
+        return !driver.findElements(AppiumBy.iOSNsPredicateString(
+                "label CONTAINS '" + text + "' OR name CONTAINS '" + text + "'")).isEmpty();
+    }
+
+    // Picks an account row (a button named "<balance>, <account>, <IBAN>") in the iOS picker by a
+    // CONTAINS match on the marker, scrolling the list until the matching row is on-screen (hittable).
+    private void pickAccountIos(String marker) {
+        By row = AppiumBy.iOSNsPredicateString(
+                "type == 'XCUIElementTypeButton' AND name CONTAINS '" + marker + "'");
+        // Wait for the picker list to render (any balance row present) before scanning/scrolling.
+        new WebDriverWait(driver, Duration.ofSeconds(10)).until(d -> !d.findElements(
+                AppiumBy.iOSNsPredicateString("type == 'XCUIElementTypeButton' AND (name CONTAINS '₸' "
+                        + "OR name CONTAINS '$')")).isEmpty());
+        for (int i = 0; i < 12; i++) {
+            for (WebElement el : driver.findElements(row)) {
+                if ("true".equals(el.getAttribute("visible"))) {
+                    el.click();
+                    return;
+                }
+            }
+            swipeUpIos();
+        }
+        driver.findElement(row).click();  // last resort
+    }
+
+    private void swipeUpIos() {
+        PointerInput f = new PointerInput(PointerInput.Kind.TOUCH, "finger");
+        driver.perform(Collections.singletonList(new Sequence(f, 1)
+                .addAction(f.createPointerMove(Duration.ZERO, PointerInput.Origin.viewport(), 200, 600))
+                .addAction(f.createPointerDown(0))
+                .addAction(f.createPointerMove(Duration.ofMillis(300), PointerInput.Origin.viewport(), 200, 280))
+                .addAction(f.createPointerUp(0))));
+    }
 
     private By iosLabel(String text) {
         return AppiumBy.iOSNsPredicateString("label == '" + text + "' OR name == '" + text + "'");
