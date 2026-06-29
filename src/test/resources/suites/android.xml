@@ -19,12 +19,12 @@
             <class name="tests.PasswordRecoveryTest"/>      <!-- восстановление: SMS-код → видеоидентификация 2 кейс (iOS skip) -->
             <class name="tests.PinCodeTest"/>               <!-- экран создания PIN 2 кейс -->
             <class name="tests.MainScreenTest"/>            <!-- PIN setup → главный экран: вкладки, приветствие, счета, скролл 4 кейс -->
-            <class name="tests.AccountDetailTest"/>         <!-- тап по счёту → экран деталей: баланс, действия, вкладки, назад 3 кейс (iOS TODO) -->
-            <class name="tests.SideMenuTest"/>              <!-- боковое меню: список пунктов + переход в "Курсы обмена валют" и назад 2 кейс (iOS TODO) -->
-            <class name="tests.BottomNavTest"/>             <!-- нижняя навигация: Главная↔Продукты табы + Быстрое меню (bottom sheet, закрытие) 2 кейс (iOS TODO) -->
-            <class name="tests.PullToRefreshTest"/>         <!-- pull-to-refresh главного экрана: контейнер + перезагрузка экрана 2 кейс (iOS TODO) -->
-            <class name="tests.TransferTest"/>              <!-- T-05 перевод между своими счетами → экран "Подтверждение" (деньги НЕ двигаются) 2 кейса: Перевести + drag/drop (iOS TODO) -->
-            <class name="tests.PhoneTransferTest"/>         <!-- T-06 перевод по номеру телефона (внутри банка) → экран "Подтверждение" (деньги НЕ двигаются) 1 кейс (iOS TODO) -->
+            <class name="tests.AccountDetailTest"/>         <!-- тап по счёту → экран деталей: баланс, действия, вкладки, назад 3 кейс (iOS: тоже, в ios.xml) -->
+            <class name="tests.SideMenuTest"/>              <!-- боковое меню: список пунктов + переход в "Курсы обмена валют" и назад 2 кейс (iOS: тоже, в ios.xml) -->
+            <class name="tests.BottomNavTest"/>             <!-- нижняя навигация: Главная↔Продукты табы + Быстрое меню (bottom sheet, закрытие) 2 кейс (iOS: тоже; закрытие quick-menu — iOS skip, баг приложения) -->
+            <class name="tests.PullToRefreshTest"/>         <!-- pull-to-refresh главного экрана: контейнер + перезагрузка экрана 2 кейс (iOS: тоже; контрол refresh не экспонится — iOS skip) -->
+            <class name="tests.TransferTest"/>              <!-- T-05 перевод между своими счетами → экран "Подтверждение" (деньги НЕ двигаются) 2 кейса: Перевести + drag/drop (iOS — отдельным классом TransferIosTest) -->
+            <class name="tests.PhoneTransferTest"/>         <!-- T-06 перевод по номеру телефона (внутри банка) → экран "Подтверждение" (деньги НЕ двигаются) 1 кейс (iOS: тоже, кросс-платформенно) -->
             <class name="tests.SecurityTest"/>              <!-- EPIC 7 безопасность: SEC-4 маскирование пароля, SEC-3 перевод требует OTP (не двигает деньги) 2 кейса -->
         </classes>
     </test>
