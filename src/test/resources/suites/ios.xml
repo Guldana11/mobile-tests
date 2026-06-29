@@ -25,6 +25,7 @@
             <class name="tests.AccountDetailTest"/>       <!-- T-01: тап по счёту (coord-tap) → экран деталей: actions ("Переводы"/"Реквизиты"), вкладки, back (chevron.left) 3 кейса -->
             <class name="tests.TransferIosTest"/>         <!-- T-05 iOS: открытие счёта (coord-tap) → "Переводы" → "Между своими счетами" → выбор источника/назначения → экран "Подтверждение" (деньги НЕ двигаются) 2 кейса -->
             <class name="tests.PhoneTransferTest"/>       <!-- T-06: перевод по номеру телефона → экран "Подтверждение" (cross-platform, submit на iOS работает) 1 кейс -->
+            <class name="tests.TransferValidationTest"/>  <!-- T-08: валидации формы перевода — submit disabled без суммы/согласия; сумма > лимита (100M) отклоняется 2 кейса -->
             <class name="tests.SecurityTest"/>            <!-- EPIC 7: безопасность — SEC-4 маскирование пароля, SEC-3 перевод требует OTP (не двигает деньги) 2 кейса -->
         </classes>
     </test>

@@ -42,6 +42,7 @@ public class PhoneTransferPage extends BasePage {
     private static final String AMOUNT_HINT = "Сумма";                  // iOS amount TextField hint
     private static final String OTP_TITLE = "Введите код";              // SMS-code screen title
     private static final String STATUS_MARKER = "Номер операции";       // operation-status (receipt) screen always has it
+    private static final String OVER_LIMIT_ERROR = "должно быть меньше"; // "…или равно 100000000" — per-transfer cap (T-08)
 
     public PhoneTransferPage(AppiumDriver driver) {
         super(driver);
@@ -120,6 +121,29 @@ public class PhoneTransferPage extends BasePage {
         new WebDriverWait(driver, Duration.ofSeconds(10))
                 .until(ExpectedConditions.elementToBeClickable(textLocator(SUBMIT)))
                 .click();
+    }
+
+    /** True if the "Перевести" submit button is currently enabled (T-08: gated until the form is valid). */
+    public boolean isSubmitEnabled() {
+        List<WebElement> b = driver.findElements(submitButtonLocator());
+        return !b.isEmpty() && b.get(0).isEnabled();
+    }
+
+    /**
+     * True if the over-limit validation error ("должно быть меньше или равно 100000000") is shown — the
+     * per-transfer cap. Used by T-08 to assert an over-limit amount is rejected (no confirmation).
+     */
+    public boolean isOverLimitErrorShown() {
+        return waitVisible(textLocator(OVER_LIMIT_ERROR), Duration.ofSeconds(10));
+    }
+
+    // The submit button specifically (typed), so the enabled-state check doesn't match a static label.
+    private By submitButtonLocator() {
+        return switch (Platform.current()) {
+            case IOS -> AppiumBy.iOSNsPredicateString("type == 'XCUIElementTypeButton' AND "
+                    + "(label CONTAINS '" + SUBMIT + "' OR name CONTAINS '" + SUBMIT + "')");
+            case ANDROID -> textLocator(SUBMIT);
+        };
     }
 
     /** True once the "Подтверждение" review screen with its final "Подтвердить" button is shown. */
