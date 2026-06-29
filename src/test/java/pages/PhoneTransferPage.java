@@ -22,8 +22,9 @@ import java.util.Map;
  * number. Entered from the Быстрое меню (see {@link MainScreenPage#openInBankTransfer()}) after a
  * fraud-warning sheet. The form has a phone field (entering a number resolves the recipient's name),
  * an amount field, a "Я согласен…" terms checkbox and a "Перевести" submit. Submitting opens the
- * "Подтверждение" review screen — where the test STOPS (never taps the final "Подтвердить", so no
- * money moves).
+ * "Подтверждение" review screen. The "no money moves" case STOPS there; the full case taps the final
+ * "Подтвердить" → enters the mock SMS code "0000" ({@link #enterSmsCode}) → reaches the operation-status
+ * (receipt) screen ({@link #isOperationStatusShown}), which DOES complete the transfer.
  *
  * <p>Cross-platform. Android uses resource-ids; on iOS the form fields are TextFields (phone = first,
  * amount = the one hinting "Сумма перевода") and the terms checkbox / submit are matched by label.
@@ -39,6 +40,8 @@ public class PhoneTransferPage extends BasePage {
     private static final String CONFIRM_TITLE = "Подтверждение";
     private static final String CONFIRM_BUTTON = "Подтвердить";
     private static final String AMOUNT_HINT = "Сумма";                  // iOS amount TextField hint
+    private static final String OTP_TITLE = "Введите код";              // SMS-code screen title
+    private static final String STATUS_MARKER = "Номер операции";       // operation-status (receipt) screen always has it
 
     public PhoneTransferPage(AppiumDriver driver) {
         super(driver);
@@ -127,6 +130,52 @@ public class PhoneTransferPage extends BasePage {
 
     /** True if the confirmation screen shows the given text (amount or recipient). */
     public boolean confirmationShows(String text) {
+        return !driver.findElements(textLocator(text)).isEmpty();
+    }
+
+    /**
+     * Taps the final "Подтвердить" on the review screen — this actually SUBMITS the transfer and opens
+     * the SMS-code screen. (Money still does not move until the code is entered.)
+     */
+    public void tapConfirm() {
+        new WebDriverWait(driver, Duration.ofSeconds(10))
+                .until(ExpectedConditions.elementToBeClickable(textLocator(CONFIRM_BUTTON)))
+                .click();
+    }
+
+    /** True once the SMS-code screen ("Введите код") is shown. */
+    public boolean isSmsCodeShown() {
+        return waitVisible(textLocator(OTP_TITLE), Duration.ofSeconds(20));
+    }
+
+    /**
+     * Enters the (mock) SMS code. The screen auto-submits on the last digit — there is no submit
+     * button. iOS taps the on-screen numeric keypad keys by name; Android types into the OTP field.
+     */
+    public void enterSmsCode(String code) {
+        switch (Platform.current()) {
+            case IOS -> {
+                for (char c : code.toCharArray()) {
+                    new WebDriverWait(driver, Duration.ofSeconds(5))
+                            .until(ExpectedConditions.elementToBeClickable(AppiumBy.iOSNsPredicateString(
+                                    "type == 'XCUIElementTypeKey' AND name == '" + c + "'")))
+                            .click();
+                }
+            }
+            case ANDROID -> {
+                List<WebElement> fields = driver.findElements(AppiumBy.className("android.widget.EditText"));
+                if (!fields.isEmpty()) fields.get(0).sendKeys(code);
+            }
+        }
+    }
+
+    /** True once the operation-status (receipt) screen is shown — it always carries a "Номер операции". */
+    public boolean isOperationStatusShown() {
+        return waitVisible(textLocator(STATUS_MARKER), Duration.ofSeconds(30));
+    }
+
+    /** True if the operation-status screen shows the given text (amount, recipient or status). */
+    public boolean statusShows(String text) {
         return !driver.findElements(textLocator(text)).isEmpty();
     }
 
