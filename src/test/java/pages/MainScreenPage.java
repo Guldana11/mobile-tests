@@ -52,6 +52,7 @@ public class MainScreenPage extends BasePage {
     private static final String LATER_BUTTON = "Позже";
     // Title of the app-lock screen the app shows when it auto-locks during a long session.
     private static final String PIN_LOCK_TITLE = "Введите код";
+    private static final String PIN_WRONG_CODE = "Код неверный";   // unlock-screen error after a wrong PIN
 
     private static final String ANDROID_GREETING_ID = "kz.bnk.app.dev:id/tv_greetings";
     private static final String ANDROID_AMOUNT_ID = "kz.bnk.app.dev:id/tv_amount";
@@ -325,6 +326,46 @@ public class MainScreenPage extends BasePage {
         } catch (Exception ignored) {
         } finally {
             driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
+        }
+    }
+
+    /** True if the app's PIN-unlock screen ("Введите код") is currently shown. */
+    public boolean isPinLockShown() {
+        return !driver.findElements(pinLockTitleLocator()).isEmpty();
+    }
+
+    /**
+     * True if the PIN-unlock screen is showing in ANY of its states — the initial "Введите код" title
+     * OR the post-wrong-entry "Код неверный." state (which replaces the title but keeps the keypad).
+     * Used by SEC-2 to keep brute-forcing across attempts: {@link #isPinLockShown} alone returns false
+     * after the first wrong PIN (the title is gone) even though we are still locked on the keypad.
+     */
+    public boolean isUnlockScreenShown() {
+        return isPinLockShown() || isPinErrorShown();
+    }
+
+    /** True if the unlock screen shows the "Код неверный." rejection (the app refused a wrong PIN). */
+    public boolean isPinErrorShown() {
+        return !driver.findElements(textLocator(PIN_WRONG_CODE)).isEmpty();
+    }
+
+    /**
+     * Waits up to {@code timeout} for the "Код неверный." rejection to appear. The unlock PIN is
+     * validated with a short delay (a spinner shows briefly), so the rejection is NOT instant after the
+     * 4th digit — SEC-2 must wait for it rather than poll once.
+     */
+    public boolean waitForPinError(Duration timeout) {
+        return waitVisible(textLocator(PIN_WRONG_CODE), timeout);
+    }
+
+    /**
+     * Types {@code pin} on the PIN-unlock screen — unlike {@link #unlockIfLocked} this makes no
+     * assumption that the code is correct, so SEC-2 can feed a deliberately wrong PIN. The keypad
+     * auto-submits on the 4th digit (no confirm button) and resets for the next attempt.
+     */
+    public void enterUnlockPin(String pin) {
+        for (char c : pin.toCharArray()) {
+            driver.findElement(pinDigitLocator(c)).click();
         }
     }
 

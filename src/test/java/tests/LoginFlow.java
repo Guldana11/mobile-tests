@@ -28,6 +28,11 @@ public final class LoginFlow {
     public static final Account PRIMARY = new Account("7074771448", "POIUpoiu0@");
     // Серікбаева Гаухар Бахытбекқызы — fallback when the primary account is locked/unavailable.
     public static final Account FALLBACK = new Account("7054600032", "Nazia2007!");
+    // Dedicated BURNER account for the destructive brute-force lockout tests (SEC-1 password, SEC-2
+    // PIN). Running those tests deliberately LOCKS this account ("Вход заблокирован до …"), so it must
+    // never be PRIMARY/FALLBACK — those are needed by every other test. Used only by SecurityLockoutTest
+    // (opt-in "destructive" group, not wired into android.xml/ios.xml).
+    public static final Account BURNER = new Account("7074514182", "Qwerty!23");
 
     private LoginFlow() {}
 

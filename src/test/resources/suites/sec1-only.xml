@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<!--
+  ITERATION-ONLY suite: runs SEC-1 (wrongPasswordLocksAccount) alone. LOCKS the BURNER account for ~5 min.
+      ./gradlew test -Dplatform=ios -DsuiteFile=sec1-only.xml -DdumpPageSource=true
+-->
+<suite name="SEC-1 only" verbose="1" configfailurepolicy="continue">
+    <listeners>
+        <listener class-name="core.RetryListener"/>
+    </listeners>
+    <test name="SEC-1 wrong-password">
+        <groups>
+            <run>
+                <include name="destructive"/>
+            </run>
+        </groups>
+        <classes>
+            <class name="tests.SecurityLockoutTest">
+                <methods>
+                    <include name="wrongPasswordLocksAccount"/>
+                </methods>
+            </class>
+        </classes>
+    </test>
+</suite>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<!--
+  OPT-IN, DESTRUCTIVE suite (EPIC 7: SEC-1 / SEC-2). These tests LOCK the BURNER account on purpose.
+  Run explicitly, never as part of a regression:
+      ./gradlew test -Dplatform=android -DsuiteFile=destructive.xml
+  Not referenced by android.xml / ios.xml so a normal run can't lock an account.
+-->
+<suite name="Destructive Lockout Suite" verbose="1" configfailurepolicy="continue">
+    <listeners>
+        <listener class-name="core.RetryListener"/>
+    </listeners>
+    <test name="Brute-force lockout (SEC-1 / SEC-2)">
+        <groups>
+            <run>
+                <include name="destructive"/>
+            </run>
+        </groups>
+        <classes>
+            <class name="tests.SecurityLockoutTest"/>
+        </classes>
+    </test>
+</suite>

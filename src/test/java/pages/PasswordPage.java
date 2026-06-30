@@ -118,6 +118,17 @@ public class PasswordPage extends BasePage {
         }
     }
 
+    /** Clears the password field (used to retype a clean value, e.g. SEC-1's correct-password check). */
+    public void clearPassword() {
+        WebElement field = driver.findElement(passwordFieldLocator());
+        field.click();
+        try {
+            field.clear();
+        } catch (Exception ignored) {
+            // a secure field can refuse clear() when already empty — ignore
+        }
+    }
+
     public void tapContinue() {
         driver.findElement(continueLocator()).click();
     }
@@ -174,6 +185,36 @@ public class PasswordPage extends BasePage {
             return true;
         } catch (Exception e) {
             return false;
+        }
+    }
+
+    /**
+     * True if the server lock ("Вход заблокирован до [...]") is shown — the state the account enters
+     * after repeated wrong passwords. Used by SEC-1 to confirm the brute-force lockout is enforced.
+     * Matches the stable prefix only (the unlock timestamp is dynamic).
+     */
+    public boolean isLoginBlockedShown(Duration timeout) {
+        try {
+            new WebDriverWait(driver, timeout).until(
+                    ExpectedConditions.visibilityOfElementLocated(loginBlockedLocator()));
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /**
+     * Dismisses the login-rejected alert so the next brute-force attempt can be made. On Android the
+     * alert is a native AlertDialog whose confirm button is {@code android:id/button1}; it stays put
+     * until dismissed. On iOS {@code autoAcceptAlerts} already closes it, so this is a no-op. Best-effort.
+     */
+    public void dismissLoginAlert() {
+        if (Platform.current() == Platform.IOS) {
+            return;  // autoAcceptAlerts dismisses native alerts for us
+        }
+        java.util.List<WebElement> ok = driver.findElements(By.id("android:id/button1"));
+        if (!ok.isEmpty()) {
+            ok.get(0).click();
         }
     }
 

@@ -81,6 +81,36 @@ public abstract class BaseTest {
     }
 
     /**
+     * Sends the app to the background for {@code duration} and brings it back. Cross-platform via
+     * Appium's {@code runAppInBackground}.
+     */
+    protected void backgroundApp(Duration duration) {
+        try {
+            ((io.appium.java_client.InteractsWithApps) driver).runAppInBackground(duration);
+        } catch (Exception ignored) {
+        }
+    }
+
+    /**
+     * Terminates and re-launches the app (WITHOUT reinstalling, so the PIN/session survive). A returning
+     * user with a PIN set is gated by the PIN-unlock screen ("Введите код") — this is the deterministic
+     * way to reach it for SEC-2 (a short background return lands inside the app's grace period and does
+     * NOT re-lock). The app id is the package/bundle, not the path.
+     */
+    protected void relaunchApp() {
+        String appId = switch (Platform.current()) {
+            case ANDROID -> ANDROID_PACKAGE;
+            case IOS -> IOS_BUNDLE_ID;
+        };
+        try {
+            io.appium.java_client.InteractsWithApps apps = (io.appium.java_client.InteractsWithApps) driver;
+            apps.terminateApp(appId);
+            apps.activateApp(appId);
+        } catch (Exception ignored) {
+        }
+    }
+
+    /**
      * The Android System UI can throw an "isn't responding" ANR dialog when the device
      * is under heavy reinstall pressure (our fullReset-per-test pattern triggers it).
      * The dialog overlays the app and blocks the accessibility tree, so any findElements

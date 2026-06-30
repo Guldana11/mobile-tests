@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<!--
+  ITERATION-ONLY suite: runs SEC-2 (wrongPinDoesNotUnlock) alone, WITHOUT SEC-1, so the BURNER account
+  stays loginable between runs (SEC-1 would lock it for ~5 min). Not for regression — use destructive.xml
+  for the full pair once SEC-2 is green.
+      ./gradlew test -Dplatform=android -DsuiteFile=sec2-only.xml -DdumpPageSource=true
+-->
+<suite name="SEC-2 only" verbose="1" configfailurepolicy="continue">
+    <listeners>
+        <listener class-name="core.RetryListener"/>
+    </listeners>
+    <test name="SEC-2 wrong-PIN">
+        <groups>
+            <run>
+                <include name="destructive"/>
+            </run>
+        </groups>
+        <classes>
+            <class name="tests.SecurityLockoutTest">
+                <methods>
+                    <include name="wrongPinDoesNotUnlock"/>
+                </methods>
+            </class>
+        </classes>
+    </test>
+</suite>
