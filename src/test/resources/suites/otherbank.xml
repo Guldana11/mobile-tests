@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Other-bank transfer" verbose="1" configfailurepolicy="continue">
+    <listeners>
+        <listener class-name="core.RetryListener"/>
+    </listeners>
+    <test name="Перевод в другой банк">
+        <classes>
+            <class name="tests.OtherBankTransferTest"/>
+            <class name="tests.OtherBankValidationTest"/>
+        </classes>
+    </test>
+</suite>

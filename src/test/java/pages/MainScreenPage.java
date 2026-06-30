@@ -137,6 +137,21 @@ public class MainScreenPage extends BasePage {
         return page;
     }
 
+    /**
+     * Opens the "Перевод в другой банк" (inter-bank transfer) from the Быстрое меню, dismissing the
+     * fraud-warning sheet, and returns the {@link OtherBankTransferPage} on the form.
+     */
+    public OtherBankTransferPage openOtherBankTransfer() {
+        openQuickMenuTab();
+        new org.openqa.selenium.support.ui.WebDriverWait(driver, Duration.ofSeconds(10))
+                .until(org.openqa.selenium.support.ui.ExpectedConditions.elementToBeClickable(
+                        textContainsLocator(QUICK_MENU_MARKER)))
+                .click();
+        OtherBankTransferPage page = new OtherBankTransferPage(driver);
+        page.dismissWarning();
+        return page;
+    }
+
     // Locates by a CONTAINS match on visible text/label (cross-platform).
     private By textContainsLocator(String text) {
         return switch (Platform.current()) {
