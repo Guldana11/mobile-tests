@@ -41,9 +41,12 @@ public final class DriverFactory {
                 .setFullReset(Boolean.parseBoolean(p.getProperty("full.reset", "true")));
         // Generous ADB / app-start timeouts — slow emulators time out at the default 20 s.
         // Bumped above the original defaults because cold-boot + fullReset on every test
-        // doubles install/instrument time vs. a warm emulator.
-        opts.setCapability("appium:adbExecTimeout", 120000);
-        opts.setCapability("appium:appWaitDuration", 60000);
+        // doubles install/instrument time vs. a warm emulator. On a software-rendered
+        // (-gpu swiftshader_indirect) emulator the splash → main launch can exceed 60 s, so
+        // appWaitDuration is 180 s — the 60 s default is the real cause of the "flaky login"
+        // (SessionNotCreated: 'am start-activity -W' timed out after 60000ms).
+        opts.setCapability("appium:adbExecTimeout", 180000);
+        opts.setCapability("appium:appWaitDuration", 180000);
         opts.setCapability("appium:uiautomator2ServerLaunchTimeout", 180000);
         opts.setCapability("appium:uiautomator2ServerInstallTimeout", 120000);
         opts.setCapability("appium:androidInstallTimeout", 240000);
