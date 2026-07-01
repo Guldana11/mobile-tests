@@ -145,8 +145,8 @@ curl -s http://127.0.0.1:4723/status
   "appium:app": "/Users/guldana/Documents/mobile-tests/apps/android/app-dev-debug.apk",
   "appium:noReset": false,
   "appium:fullReset": true,
-  "appium:adbExecTimeout": 120000,
-  "appium:appWaitDuration": 60000,
+  "appium:adbExecTimeout": 180000,
+  "appium:appWaitDuration": 180000,
   "appium:uiautomator2ServerLaunchTimeout": 180000,
   "appium:uiautomator2ServerInstallTimeout": 120000,
   "appium:androidInstallTimeout": 240000
