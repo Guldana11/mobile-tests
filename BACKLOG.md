@@ -85,6 +85,7 @@
 | DEP-2 | Открыть «Сберегательный» (мин. 15 000 ₸) — реальное открытие | ✅ `DepositOpenTest.opensSavingsDeposit` | **готов (Android+iOS)** |
 | DEP-3 | Открыть «Срочный» в USD (мин. 10 $) | ✅ `DepositOpenTest.opensTermDepositUsd` | **готов, но skip без фондированного $-счёта** (if/else) |
 | DEP-4 | Негативы: submit disabled без 3 согласий; сумма < минимума | ✅ `DepositValidationTest` (2 кейса) | **готов (Android+iOS)** |
+| DEP-5 | Детали депозита: тап по вкладу → экран (баланс, действия, вкладки, назад) | ✅ `DepositDetailTest` (3 кейса) | **готов (Android+iOS)** — read-only, переиспользует `AccountDetailPage`; iOS: скролл к вкладу + координатный тап |
 
 **Особенности реализации:**
 - **Деструктивно:** `DepositOpenTest` — группа `destructive`, `RetryListener` его **не ретраит** (иначе флейк
