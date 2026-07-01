@@ -33,6 +33,15 @@
 
 **DoD:** новый `TransferPage`, тестовые счета в `*.properties`, скип-флаги для iOS-багов если всплывут.
 
+**Статус (на 30.06):** ✅ между своими (`TransferTest`/`TransferIosTest`), ✅ по телефону (`PhoneTransferTest`,
+полный путь со SMS), ✅ по номеру счёта (`AccountNumberTransferTest`), ✅ **в другой банк**
+(`OtherBankTransferPage` + `OtherBankTransferTest` happy-path + `OtherBankValidationTest` 2 негатива:
+БИК↔IBAN, submit без согласия — всё Android+iOS), ✅ валидации (`TransferValidationTest`, T-08).
+Остался **перевод по номеру карты**. Suites переводов: классы в `android.xml`/`ios.xml`; «другой банк» —
+в `otherbank.xml` (ещё не вшит в основные suites).
+> ⚠️ Нумерация: в этой таблице T-07 = «по номеру карты», но в git под T-07 уехал «по номеру счёта» —
+> исторически разошлось, фактический охват см. выше.
+
 ## EPIC 2. Платежи `[P1]`
 
 | ID | Задача | Оценка |
@@ -74,8 +83,8 @@ Client-side / UI security controls авторизованной зоны. Про
 |----|--------|-------------|--------|--------|
 | SEC-3 | Перевод нельзя завершить без OTP (SMS) | ✅ в `SecurityTest` | — | **готов (iOS зелёный)** |
 | SEC-4 | Маскирование пароля + нет утечки plaintext в a11y-дерево | ✅ в `SecurityTest` (2 кейса) | — | **готов (iOS зелёный)** |
-| SEC-1 | Brute-force пароля → блокировка входа («Вход заблокирован до…») | ⚠️ нужен **отдельный расходный аккаунт** + opt-in группа (блокирует аккаунт!) | ~0.5д | **отложен** (нет расходного аккаунта) |
-| SEC-2 | Brute-force PIN → выход/блокировка | ⚠️ как SEC-1 | ~0.5д | tracked |
+| SEC-1 | Brute-force пароля → блокировка входа («Вход заблокирован до…») | ✅ `SecurityLockoutTest.wrongPasswordLocksAccount` | — | **готов (Android+iOS)** — расходный `LoginFlow.BURNER`, opt-in группа `destructive`/`destructive.xml`; на iOS детект поведенческий (правильный пароль отклонён, без чтения алерта из-за autoAcceptAlerts) |
+| SEC-2 | Brute-force PIN → выход/блокировка | ✅ `SecurityLockoutTest.wrongPinDoesNotUnlock` | — | **готов (Android+iOS)** — relaunch → экран «Введите код» → неверный PIN не разблокирует |
 | SEC-5 | Re-auth (PIN) при возврате приложения из фона | хелпер `background app` | ~0.5д | tracked |
 | SEC-6 | Нет восстановления сессии после force-kill (снова логин/PIN) | reinstall/restart хелпер есть | ~0.5д | tracked |
 | SEC-7 | FLAG_SECURE: скриншот на чувствительных экранах запрещён (Android) | анализ `getScreenshotAs` | ~0.5д | tracked |
