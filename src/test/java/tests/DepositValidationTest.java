@@ -1,9 +1,7 @@
 package tests;
 
 import core.BaseTest;
-import core.Platform;
 import org.testng.Assert;
-import org.testng.SkipException;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import pages.DepositPage;
@@ -18,8 +16,9 @@ import pages.MainScreenPage;
  *   <li><b>below-minimum amount</b> — an amount under the product minimum keeps the submit disabled.</li>
  * </ul>
  *
- * <p><b>Android-only</b> (the deposit form's clean ids / native consent CheckBoxes; iOS consents don't
- * toggle — see {@link DepositOpenTest}).
+ * <p><b>Cross-platform.</b> Android uses native ids; iOS drives the form by labels — the source is picked
+ * via the "Выберите счет" selector and the consent checkboxes toggle with an absolute tap just BELOW the
+ * button's a11y frame (its visible circle sits lower). See {@link pages.DepositPage}.
  */
 public class DepositValidationTest extends BaseTest {
 
@@ -33,9 +32,6 @@ public class DepositValidationTest extends BaseTest {
 
     @BeforeMethod(alwaysRun = true)
     public void reachMainScreen() {
-        if (Platform.current() != Platform.ANDROID) {
-            throw new SkipException("Deposit validations are Android-only (iOS consent checkboxes don't toggle)");
-        }
         mainScreen = LoginFlow.reachMainScreen(driver, LoginFlow.PRIMARY);
         if (mainScreen == null) {
             reinstallAndRestart();

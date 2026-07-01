@@ -30,9 +30,10 @@
             <class name="tests.SecurityTest"/>            <!-- EPIC 7: безопасность — SEC-4 маскирование пароля, SEC-3 перевод требует OTP (не двигает деньги) 2 кейса -->
             <class name="tests.OtherBankTransferTest"/>   <!-- Перевод в другой банк → экран "Подтверждение" (деньги НЕ двигаются) 1 кейс (кросс-платформенно) -->
             <class name="tests.OtherBankValidationTest"/> <!-- Перевод в другой банк — негативы: submit disabled без согласия; неверный БИК 2 кейса (кросс-платформенно) -->
-            <!-- DepositValidationTest / DepositOpenTest — Android-only (iOS чекбоксы согласия не жмутся). -->
+            <class name="tests.DepositValidationTest"/>   <!-- Депозит — негативы (не открывают вклад): submit disabled без 3 согласий; сумма < минимума → disabled 2 кейса (кросс-платформенно; iOS: тап согласий ниже кнопки-чекбокса) -->
             <!-- ДЕСТРУКТИВНЫЕ (тестовый стенд): группа "destructive" → БЕЗ ретрая (RetryListener пропускает). -->
             <class name="tests.SecurityLockoutTest"/>     <!-- SEC-1/SEC-2 brute-force: лочит BURNER-аккаунт (~5 мин), no-retry 2 кейса (кросс-платформенно) -->
+            <class name="tests.DepositOpenTest"/>         <!-- Реально открывает вклады: Срочный (1000₸) + Сберегательный (15000₸) + Срочный USD (skip без USD-счёта); списывает деньги, no-retry 3 кейса (кросс-платформенно; iOS: источник + тап согласий ниже кнопки) -->
         </classes>
     </test>
 </suite>

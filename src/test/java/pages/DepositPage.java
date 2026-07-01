@@ -24,10 +24,12 @@ import java.util.Map;
  * checkboxes, "Открыть депозит" submit). Submitting OPENS A REAL DEPOSIT (debits the source) — only
  * {@code DepositOpenTest} (opt-in, min amount, not in regression suites) taps it.
  *
- * <p><b>Cross-platform.</b> Android exposes clean resource-ids and the source is pre-selected; the three
- * consents are native {@code CheckBox}es (id {@code check}) toggled by {@code click()}. iOS drives the
- * form by labels/TextFields, but its consent checkboxes are custom SwiftUI controls that no synthetic tap
- * toggles — so the real open runs on Android (see {@code DepositOpenTest}).
+ * <p><b>Cross-platform.</b> Android exposes clean resource-ids; the source is picked from a bottom-sheet
+ * (rows show only "Текущий счет" + balance, so the highest-balance one is chosen) and the three consents
+ * are native {@code CheckBox}es (id {@code check}) toggled by {@code click()}. iOS drives the form by
+ * labels/TextFields: the source is picked via the "Выберите счет" selector, and the consent checkboxes —
+ * whose accessibility frame sits ABOVE the visible circle — toggle with an absolute native tap just BELOW
+ * that frame (an element-relative tap on the frame centre misses the real target).
  */
 public class DepositPage extends BasePage {
 
@@ -106,8 +108,9 @@ public class DepositPage extends BasePage {
      * no-op; on iOS the source is also pre-selected. {@code marker} is reserved for a future picker.
      */
     public void selectSourceAccount(String marker) {
-        if (Platform.current() != Platform.ANDROID) {
-            return;  // iOS opens with a funded current account pre-selected
+        if (Platform.current() == Platform.IOS) {
+            selectSourceIos();
+            return;
         }
         // Android: if a source is already chosen, nothing to do.
         if (driver.findElements(textLocator(SOURCE_SELECTOR)).isEmpty()) {
@@ -204,6 +207,18 @@ public class DepositPage extends BasePage {
     public void tapOpen() {
         new WebDriverWait(driver, Duration.ofSeconds(10))
                 .until(ExpectedConditions.elementToBeClickable(submitLocator())).click();
+        // iOS adds a "Подтверждение" sheet with a "Подтвердить" button — tap it to actually open the
+        // deposit (Android proceeds straight to opening, with no confirmation step).
+        if (Platform.current() == Platform.IOS) {
+            By confirm = AppiumBy.iOSNsPredicateString(
+                    "type == 'XCUIElementTypeButton' AND (label == 'Подтвердить' OR name == 'Подтвердить')");
+            try {
+                new WebDriverWait(driver, Duration.ofSeconds(8))
+                        .until(ExpectedConditions.elementToBeClickable(confirm)).click();
+            } catch (Exception ignored) {
+                // no confirmation sheet — already proceeding
+            }
+        }
     }
 
     /** True if the given text is shown (used to assert the post-open result screen). */
@@ -250,7 +265,31 @@ public class DepositPage extends BasePage {
         };
     }
 
-    // ---- iOS consent helpers (best-effort; the SwiftUI checkboxes resist synthetic taps) ----
+    // ---- iOS helpers ----
+
+    /** iOS: the deposit source is NOT pre-selected — tap "Выберите счет" and pick the first funded account. */
+    private void selectSourceIos() {
+        List<WebElement> sel = driver.findElements(textLocator(SOURCE_SELECTOR));
+        if (sel.isEmpty()) return;   // a source is already chosen
+        sel.get(0).click();
+        By balanceRow = AppiumBy.iOSNsPredicateString(
+                "type == 'XCUIElementTypeButton' AND (name CONTAINS '₸' OR name CONTAINS '$')");
+        List<WebElement> rows = List.of();
+        for (int i = 0; i < 16; i++) {           // picker rows load async
+            rows = driver.findElements(balanceRow);
+            if (!rows.isEmpty()) break;
+            sleepMs(300);
+        }
+        if (rows.isEmpty()) {   // e.g. USD with no funded $ account — let the caller skip
+            throw new org.openqa.selenium.NoSuchElementException(
+                    "deposit source-account picker is EMPTY — no funded account for this currency");
+        }
+        for (WebElement el : rows) {
+            if ("true".equals(el.getAttribute("visible"))) { el.click(); return; }
+        }
+        rows.get(0).click();
+    }
+
 
     private void acceptConsentsIos() {
         for (int i = 0; i < 5; i++) {
@@ -261,13 +300,41 @@ public class DepositPage extends BasePage {
             }
             swipeUpIos();
         }
-        for (int i = 0; i < 3; i++) {
-            List<WebElement> boxes = smallCheckboxesSortedByY();
-            if (boxes.size() > i) {
-                tapElementNative(boxes.get(i));
-                try { Thread.sleep(250); } catch (InterruptedException ignored) {}
-            }
+        // The checkbox Button's accessibility frame sits ABOVE the visible circle — the real touch target
+        // is a bit LOWER (confirmed by manual tapping). Read ALL box coordinates FIRST (tapping one re-renders
+        // the view and stales the other element refs), then tap each once via ABSOLUTE native tap offset DOWN
+        // from the frame's bottom edge (single pass — a second tap on the same box would un-toggle it).
+        List<int[]> targets = new ArrayList<>();
+        for (WebElement b : smallCheckboxesSortedByY()) {
+            Rectangle r = b.getRect();
+            targets.add(new int[]{r.getX() + r.getWidth() / 2, r.getY() + r.getHeight() + 8});
         }
+        for (int[] t : targets) {
+            iosTapAbsolute(t[0], t[1]);
+            sleepMs(300);
+        }
+        openEnabledSettleIos();
+    }
+
+    // Waits briefly for the submit to enable — the oracle that a consent tap actually registered.
+    private boolean openEnabledSettleIos() {
+        for (int i = 0; i < 4; i++) {
+            if (isOpenEnabled()) return true;
+            sleepMs(300);
+        }
+        return false;
+    }
+
+    // Native XCTest tap at absolute screen coordinates (a different path than element-relative mobile:tap).
+    private void iosTapAbsolute(int x, int y) {
+        try {
+            ((IOSDriver) driver).executeScript("mobile: tap", Map.of("x", x, "y", y));
+        } catch (Exception ignored) {
+        }
+    }
+
+    private void sleepMs(long ms) {
+        try { Thread.sleep(ms); } catch (InterruptedException ignored) {}
     }
 
     private List<WebElement> smallCheckboxesSortedByY() {

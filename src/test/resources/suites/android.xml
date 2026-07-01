@@ -30,7 +30,7 @@
             <class name="tests.SecurityTest"/>              <!-- EPIC 7 безопасность: SEC-4 маскирование пароля, SEC-3 перевод требует OTP (не двигает деньги) 2 кейса -->
             <class name="tests.OtherBankTransferTest"/>     <!-- Перевод в другой банк → экран "Подтверждение" (деньги НЕ двигаются) 1 кейс (кросс-платформенно, БИК Kaspi) -->
             <class name="tests.OtherBankValidationTest"/>   <!-- Перевод в другой банк — негативы: submit disabled без согласия; неверный БИК ("IBAN не принадлежит выбранному банку") 2 кейса -->
-            <class name="tests.DepositValidationTest"/>     <!-- Депозит — негативы (не открывают вклад): submit disabled без 3 согласий; сумма < минимума → disabled 2 кейса (Android-only) -->
+            <class name="tests.DepositValidationTest"/>     <!-- Депозит — негативы (не открывают вклад): submit disabled без 3 согласий; сумма < минимума → disabled 2 кейса (кросс-платформенно) -->
             <!-- ДЕСТРУКТИВНЫЕ (тестовый стенд, тестовые деньги): группа "destructive" → БЕЗ ретрая (RetryListener пропускает), чтобы флейк не открыл 2-й вклад / не залочил повторно. -->
             <class name="tests.SecurityLockoutTest"/>       <!-- SEC-1/SEC-2 brute-force: лочит BURNER-аккаунт (~5 мин), no-retry 2 кейса -->
             <class name="tests.DepositOpenTest"/>           <!-- Реально открывает вклады: Срочный (1000₸) + Сберегательный (15000₸) + Срочный USD (skip без USD-счёта); списывает деньги, no-retry 3 кейса -->
