@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<!-- OPT-IN, DESTRUCTIVE: opens REAL current accounts (KZT + USD). No RetryListener (a retry would open a
+     second account). Safe dry check: ./gradlew test -Dplatform=android -DsuiteFile=account.xml -DaccountDryRun=true -->
+<suite name="Account open (opt-in, real)" verbose="1" configfailurepolicy="continue">
+    <test name="open-account">
+        <classes>
+            <class name="tests.AccountOpenTest"/>
+        </classes>
+    </test>
+</suite>

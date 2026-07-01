@@ -34,6 +34,7 @@
             <!-- ДЕСТРУКТИВНЫЕ (тестовый стенд): группа "destructive" → БЕЗ ретрая (RetryListener пропускает). -->
             <class name="tests.SecurityLockoutTest"/>     <!-- SEC-1/SEC-2 brute-force: лочит BURNER-аккаунт (~5 мин), no-retry 2 кейса (кросс-платформенно) -->
             <class name="tests.DepositOpenTest"/>         <!-- Реально открывает вклады: Срочный (1000₸) + Сберегательный (15000₸) + Срочный USD (skip без USD-счёта); списывает деньги, no-retry 3 кейса (кросс-платформенно; iOS: источник + тап согласий ниже кнопки) -->
+            <class name="tests.AccountOpenTest"/>         <!-- Реально открывает текущие счета: KZT + USD (деньги НЕ двигаются, просто создаётся счёт), no-retry 2 кейса (кросс-платформенно) -->
         </classes>
     </test>
 </suite>

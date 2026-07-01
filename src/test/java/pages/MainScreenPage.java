@@ -173,6 +173,26 @@ public class MainScreenPage extends BasePage {
         return new DepositPage(driver);
     }
 
+    /**
+     * Scrolls the home account list to the bottom action "Открыть счет" (next to "Открыть депозит") and
+     * taps it, opening the "Открыть текущий счет" form. Returns an {@link AccountOpenPage}.
+     */
+    public AccountOpenPage openAccountForm() {
+        scrollAccountsDown();
+        new org.openqa.selenium.support.ui.WebDriverWait(driver, Duration.ofSeconds(10))
+                .until(org.openqa.selenium.support.ui.ExpectedConditions.elementToBeClickable(
+                        openAccountLocator()))
+                .click();
+        return new AccountOpenPage(driver);
+    }
+
+    private By openAccountLocator() {
+        return switch (Platform.current()) {
+            case IOS -> AppiumBy.accessibilityId("Открыть счет");
+            case ANDROID -> AppiumBy.androidUIAutomator("new UiSelector().text(\"Открыть счет\")");
+        };
+    }
+
     /** Opens the side menu (drawer) via the header burger button. */
     public void openSideMenu() {
         driver.findElement(burgerLocator()).click();
