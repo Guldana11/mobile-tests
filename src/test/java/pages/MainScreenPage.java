@@ -323,6 +323,64 @@ public class MainScreenPage extends BasePage {
         }
     }
 
+    /**
+     * Opens a DEPOSIT card's detail screen (a card whose name contains "Депозит"). The detail screen is
+     * the SAME layout as an account's (balance/"Доступный", "Перевести"/"Реквизиты" actions, История/
+     * Настройки tabs, back arrow), so it returns an {@link AccountDetailPage}. On Android the deposit
+     * name is tappable; on iOS the a11y tree has no tappable cell, so we coordinate-tap the row.
+     */
+    public AccountDetailPage openDepositDetail() {
+        switch (Platform.current()) {
+            case ANDROID -> {
+                driver.findElement(AppiumBy.androidUIAutomator(
+                        "new UiScrollable(new UiSelector().scrollable(true)).scrollIntoView("
+                                + "new UiSelector().textContains(\"Депозит\"))"));
+                driver.findElement(AppiumBy.androidUIAutomator(
+                        "new UiSelector().textContains(\"Депозит\")")).click();
+            }
+            case IOS -> openDepositDetailByCoordinateIos();
+        }
+        return new AccountDetailPage(driver);
+    }
+
+    // iOS: deposits sit BELOW the current accounts (off-screen at first), so swipe up until a "Депозит…"
+    // row is in the tappable area, then coordinate-tap it retrying y-offsets until the detail opens
+    // (signalled by the "Реквизиты" action). Mirrors openFirstAccountByCoordinateIos — see
+    // project_ios_a11y_tree.
+    private void openDepositDetailByCoordinateIos() {
+        By depName = AppiumBy.iOSNsPredicateString(
+                "type == 'XCUIElementTypeStaticText' AND label CONTAINS 'Депозит'");
+        By detailMarker = AppiumBy.iOSNsPredicateString("label == 'Реквизиты' OR name == 'Реквизиты'");
+        Rectangle target = null;
+        for (int i = 0; i < 7 && target == null; i++) {   // scroll a deposit row into the tappable band
+            for (WebElement e : driver.findElements(depName)) {
+                Rectangle r = e.getRect();
+                if (r.getY() > 150 && r.getY() < 680) { target = r; break; }
+            }
+            if (target == null) swipeUpIos();
+        }
+        if (target == null) {
+            java.util.List<WebElement> all = driver.findElements(depName);
+            if (all.isEmpty()) return;
+            target = all.get(0).getRect();
+        }
+        for (int offset : new int[]{0, -28, 28, -56, 14}) {
+            tapXY(target.getX() + target.getWidth() / 2, target.getY() + offset);
+            sleepQuietly(2000);
+            if (!driver.findElements(detailMarker).isEmpty()) return;
+        }
+    }
+
+    private void swipeUpIos() {
+        PointerInput f = new PointerInput(PointerInput.Kind.TOUCH, "finger");
+        driver.perform(Collections.singletonList(new Sequence(f, 1)
+                .addAction(f.createPointerMove(Duration.ZERO, PointerInput.Origin.viewport(), 200, 650))
+                .addAction(f.createPointerDown(PointerInput.MouseButton.LEFT.asArg()))
+                .addAction(f.createPointerMove(Duration.ofMillis(400), PointerInput.Origin.viewport(), 200, 300))
+                .addAction(f.createPointerUp(PointerInput.MouseButton.LEFT.asArg()))));
+        sleepQuietly(800);
+    }
+
     private void tapXY(int x, int y) {
         PointerInput finger = new PointerInput(PointerInput.Kind.TOUCH, "finger");
         driver.perform(Collections.singletonList(new Sequence(finger, 1)

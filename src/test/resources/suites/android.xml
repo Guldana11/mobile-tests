@@ -20,6 +20,7 @@
             <class name="tests.PinCodeTest"/>               <!-- экран создания PIN 2 кейс -->
             <class name="tests.MainScreenTest"/>            <!-- PIN setup → главный экран: вкладки, приветствие, счета, скролл 4 кейс -->
             <class name="tests.AccountDetailTest"/>         <!-- тап по счёту → экран деталей: баланс, действия, вкладки, назад 3 кейс (iOS: тоже, в ios.xml) -->
+            <class name="tests.DepositDetailTest"/>         <!-- тап по вкладу → детали депозита (тот же layout: баланс/Доступный, Перевести/Реквизиты, История/Настройки, back); read-only 3 кейса (кросс-платформенно) -->
             <class name="tests.SideMenuTest"/>              <!-- боковое меню: список пунктов + переход в "Курсы обмена валют" и назад 2 кейс (iOS: тоже, в ios.xml) -->
             <class name="tests.BottomNavTest"/>             <!-- нижняя навигация: Главная↔Продукты табы + Быстрое меню (bottom sheet, закрытие) 2 кейс (iOS: тоже; закрытие quick-menu — iOS skip, баг приложения) -->
             <class name="tests.PullToRefreshTest"/>         <!-- pull-to-refresh главного экрана: контейнер + перезагрузка экрана 2 кейс (iOS: тоже; контрол refresh не экспонится — iOS skip) -->

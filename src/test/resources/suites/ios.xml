@@ -23,6 +23,7 @@
             <class name="tests.BottomNavTest"/>           <!-- 2 кейса: Главная↔Продукты (закрытие quick-menu — iOS skip) -->
             <class name="tests.PullToRefreshTest"/>       <!-- 2 кейса: pull-to-refresh (проверка контейнера — iOS skip) -->
             <class name="tests.AccountDetailTest"/>       <!-- T-01: тап по счёту (coord-tap) → экран деталей: actions ("Переводы"/"Реквизиты"), вкладки, back (chevron.left) 3 кейса -->
+            <class name="tests.DepositDetailTest"/>       <!-- тап по вкладу (coord-tap) → детали депозита (тот же layout, что у счёта); read-only 3 кейса (кросс-платформенно) -->
             <class name="tests.TransferIosTest"/>         <!-- T-05 iOS: открытие счёта (coord-tap) → "Переводы" → "Между своими счетами" → выбор источника/назначения → экран "Подтверждение" (деньги НЕ двигаются) 2 кейса -->
             <class name="tests.PhoneTransferTest"/>       <!-- T-06: перевод по номеру телефона → экран "Подтверждение" (cross-platform, submit на iOS работает) 1 кейс -->
             <class name="tests.AccountNumberTransferTest"/> <!-- T-07: перевод по номеру счёта → резолв получателя (ИИН+счёт) → источник/КНП → экран "Подтверждение" (деньги НЕ двигаются, кросс-платформенно) 2 кейса -->
