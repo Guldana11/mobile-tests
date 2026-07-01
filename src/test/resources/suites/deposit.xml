@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<!--
+  OPT-IN, REAL-MONEY suite: opening a deposit DEBITS the source and creates a real product.
+  NOTE: no <listeners> RetryListener here on purpose — a retry would open a SECOND deposit.
+  Safe dry check (no open):   ./gradlew test -Dplatform=ios -DsuiteFile=deposit.xml -DdepositDryRun=true
+  Real open (creates deposit): ./gradlew test -Dplatform=ios -DsuiteFile=deposit.xml
+  Not referenced by android.xml / ios.xml.
+-->
+<suite name="Deposit open (opt-in, real money)" verbose="1" configfailurepolicy="continue">
+    <test name="open-term-deposit">
+        <classes>
+            <class name="tests.DepositOpenTest"/>
+        </classes>
+    </test>
+</suite>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<!-- OPT-IN, REAL-MONEY: opens ONLY "Срочный" in USD (min 10 USD). No RetryListener on purpose.
+     Safe dry check: ./gradlew test -Dplatform=android -DsuiteFile=deposit-usd.xml -DdepositDryRun=true -->
+<suite name="Deposit open — Срочный USD (opt-in, real money)" verbose="1" configfailurepolicy="continue">
+    <test name="open-term-usd">
+        <classes>
+            <class name="tests.DepositOpenTest">
+                <methods>
+                    <include name="opensTermDepositUsd"/>
+                </methods>
+            </class>
+        </classes>
+    </test>
+</suite>

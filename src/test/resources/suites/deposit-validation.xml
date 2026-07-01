@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<!-- Deposit form validations — NON-DESTRUCTIVE (never open a real deposit). RetryListener is fine here. -->
+<suite name="Deposit validations" verbose="1" configfailurepolicy="continue">
+    <listeners>
+        <listener class-name="core.RetryListener"/>
+    </listeners>
+    <test name="deposit-validations">
+        <classes>
+            <class name="tests.DepositValidationTest"/>
+        </classes>
+    </test>
+</suite>

@@ -160,6 +160,19 @@ public class MainScreenPage extends BasePage {
         };
     }
 
+    /**
+     * Scrolls the home account list to the bottom action "Открыть депозит" and taps it, opening the
+     * "Депозиты" product list. Returns a {@link DepositPage} positioned on that list.
+     */
+    public DepositPage openDepositList() {
+        scrollAccountsDown();
+        new org.openqa.selenium.support.ui.WebDriverWait(driver, Duration.ofSeconds(10))
+                .until(org.openqa.selenium.support.ui.ExpectedConditions.elementToBeClickable(
+                        bottomActionLocator()))
+                .click();
+        return new DepositPage(driver);
+    }
+
     /** Opens the side menu (drawer) via the header burger button. */
     public void openSideMenu() {
         driver.findElement(burgerLocator()).click();

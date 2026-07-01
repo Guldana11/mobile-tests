@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<!-- OPT-IN, REAL-MONEY: opens ONLY the "Сберегательный" deposit (15 000 ₸). No RetryListener on purpose. -->
+<suite name="Deposit open — Сберегательный (opt-in, real money)" verbose="1" configfailurepolicy="continue">
+    <test name="open-savings-deposit">
+        <classes>
+            <class name="tests.DepositOpenTest">
+                <methods>
+                    <include name="opensSavingsDeposit"/>
+                </methods>
+            </class>
+        </classes>
+    </test>
+</suite>
