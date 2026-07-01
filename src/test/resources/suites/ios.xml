@@ -28,6 +28,11 @@
             <class name="tests.AccountNumberTransferTest"/> <!-- T-07: перевод по номеру счёта → резолв получателя (ИИН+счёт) → источник/КНП → экран "Подтверждение" (деньги НЕ двигаются, кросс-платформенно) 2 кейса -->
             <class name="tests.TransferValidationTest"/>  <!-- T-08: валидации формы перевода — submit disabled без суммы/согласия; сумма > лимита (100M) отклоняется 2 кейса -->
             <class name="tests.SecurityTest"/>            <!-- EPIC 7: безопасность — SEC-4 маскирование пароля, SEC-3 перевод требует OTP (не двигает деньги) 2 кейса -->
+            <class name="tests.OtherBankTransferTest"/>   <!-- Перевод в другой банк → экран "Подтверждение" (деньги НЕ двигаются) 1 кейс (кросс-платформенно) -->
+            <class name="tests.OtherBankValidationTest"/> <!-- Перевод в другой банк — негативы: submit disabled без согласия; неверный БИК 2 кейса (кросс-платформенно) -->
+            <!-- DepositValidationTest / DepositOpenTest — Android-only (iOS чекбоксы согласия не жмутся). -->
+            <!-- ДЕСТРУКТИВНЫЕ (тестовый стенд): группа "destructive" → БЕЗ ретрая (RetryListener пропускает). -->
+            <class name="tests.SecurityLockoutTest"/>     <!-- SEC-1/SEC-2 brute-force: лочит BURNER-аккаунт (~5 мин), no-retry 2 кейса (кросс-платформенно) -->
         </classes>
     </test>
 </suite>
