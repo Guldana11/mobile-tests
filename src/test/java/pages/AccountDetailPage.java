@@ -66,6 +66,30 @@ public class AccountDetailPage extends BasePage {
                 && !driver.findElements(textLocator(TAB_SETTINGS)).isEmpty();
     }
 
+    /** True if any visible element's text/label CONTAINS the given substring (e.g. the deposit name). */
+    public boolean showsText(String substring) {
+        return waitVisible(textContainsLocator(substring), Duration.ofSeconds(10));
+    }
+
+    /**
+     * Immediate (no-wait) presence check for a substring — use for ABSENCE assertions once the screen
+     * is already confirmed loaded (e.g. a current account's requisites must NOT show deposit-only fields).
+     */
+    public boolean isTextPresent(String substring) {
+        return !driver.findElements(textContainsLocator(substring)).isEmpty();
+    }
+
+    /** True if a monetary amount (₸ or $) is rendered — i.e. the balance is shown. */
+    public boolean showsAmount() {
+        return !driver.findElements(textContainsLocator("₸")).isEmpty()
+                || !driver.findElements(textContainsLocator("$")).isEmpty();
+    }
+
+    /** Taps the "Реквизиты" action to open the account/deposit requisites screen. */
+    public void openRequisites() {
+        driver.findElement(textLocator(ACTION_REQUISITES)).click();
+    }
+
     /** Taps the toolbar back arrow to return to the main screen. */
     public void goBack() {
         driver.findElement(backLocator()).click();
@@ -98,6 +122,16 @@ public class AccountDetailPage extends BasePage {
                     "label == '" + text + "' OR name == '" + text + "'");
             case ANDROID -> AppiumBy.androidUIAutomator(
                     "new UiSelector().text(\"" + text + "\")");
+        };
+    }
+
+    // Locates an element whose text/label CONTAINS the substring (iOS labels ≈ Android text).
+    private By textContainsLocator(String text) {
+        return switch (Platform.current()) {
+            case IOS -> AppiumBy.iOSNsPredicateString(
+                    "label CONTAINS '" + text + "' OR name CONTAINS '" + text + "'");
+            case ANDROID -> AppiumBy.androidUIAutomator(
+                    "new UiSelector().textContains(\"" + text + "\")");
         };
     }
 
