@@ -9,8 +9,9 @@ import pages.MainScreenPage;
 
 /**
  * Tests the account-detail screen reached by tapping an account card on the main screen
- * (EPIC 0 / T-01). Verifies the detail screen opens with its balance, action buttons and tabs,
- * and that the toolbar back arrow returns to the main screen.
+ * (EPIC 0 / T-01). Verifies the detail screen opens with the account name, balance, action buttons
+ * and tabs, that "Реквизиты" shows the account number (KZ IBAN) / bank / currency, and that the
+ * toolbar back arrow returns to the main screen.
  *
  * <p>These cases navigate into the detail screen and don't return, so — unlike {@link MainScreenTest}
  * — the class does NOT share a session: {@link #reachMainScreen()} reinstalls and logs in fresh before
@@ -41,13 +42,42 @@ public class AccountDetailTest extends BaseTest {
                 "Main screen must open after completing login and PIN setup");
     }
 
-    @Test(description = "Tapping an account card opens its detail screen with balance and actions")
+    @Test(description = "Tapping an account card opens its detail with the account name, balance and actions")
     public void tappingAccountOpensDetail() {
         AccountDetailPage detail = mainScreen.openFirstAccount();
         Assert.assertTrue(detail.isDisplayed(),
                 "Account detail should open showing the 'Доступный' available-balance label");
+        Assert.assertTrue(detail.showsText("Текущий счет"),
+                "Detail should show the account name ('Текущий счет …')");
+        Assert.assertTrue(detail.showsAmount(), "Detail should show a balance amount (₸/$)");
         Assert.assertTrue(detail.hasActions(),
                 "Account detail should expose the 'Перевести' and 'Реквизиты' actions");
+    }
+
+    @Test(description = "'Реквизиты' shows the account number (KZ IBAN), bank and currency")
+    public void accountDetailShowsRequisites() {
+        AccountDetailPage detail = mainScreen.openFirstAccount();
+        Assert.assertTrue(detail.isDisplayed(), "Account detail should open");
+        detail.openRequisites();
+        Assert.assertTrue(detail.showsText("Номер счета"),
+                "Requisites should show the account number ('Номер счета')");
+        Assert.assertTrue(detail.showsText("KZ"),
+                "Requisites should show a KZ IBAN account number");
+        Assert.assertTrue(detail.showsText("Банк"), "Requisites should show the bank ('Банк')");
+        Assert.assertTrue(detail.showsText("Валюта"), "Requisites should show the currency ('Валюта')");
+    }
+
+    @Test(description = "NEGATIVE: the account number / IBAN is hidden on the detail screen until 'Реквизиты' is tapped")
+    public void requisitesHiddenUntilTapped() {
+        AccountDetailPage detail = mainScreen.openFirstAccount();
+        Assert.assertTrue(detail.isDisplayed(), "Account detail should open");
+        // On the plain detail screen the requisite fields are NOT shown — they live behind "Реквизиты".
+        Assert.assertFalse(detail.isTextPresent("Номер счета"),
+                "The detail screen must NOT show 'Номер счета' before 'Реквизиты' is tapped");
+        // ...and they DO appear once the action is tapped (confirms the assertion above isn't vacuous).
+        detail.openRequisites();
+        Assert.assertTrue(detail.showsText("Номер счета"),
+                "'Номер счета' should appear after tapping 'Реквизиты'");
     }
 
     @Test(description = "Account detail exposes the История and Настройки tabs")
