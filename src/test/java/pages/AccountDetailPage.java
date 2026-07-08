@@ -3,6 +3,7 @@ package pages;
 import core.Platform;
 import io.appium.java_client.AppiumBy;
 import io.appium.java_client.AppiumDriver;
+import io.appium.java_client.clipboard.HasClipboard;
 import org.openqa.selenium.By;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -33,6 +34,8 @@ public class AccountDetailPage extends BasePage {
 
     private static final String ANDROID_BACK_ID = "kz.bnk.app.dev:id/iv_back";
     private static final String IOS_BACK = "chevron.left";  // the detail screen's toolbar back (not "BackButton")
+    private static final String ANDROID_COPY_ID = "kz.bnk.app.dev:id/iv_copy";  // copy-to-clipboard icon on requisites
+    private static final String IOS_COPY_ID = "Common/Copy";                    // iOS copy icon accessibilityId
 
     public AccountDetailPage(AppiumDriver driver) {
         super(driver);
@@ -90,9 +93,42 @@ public class AccountDetailPage extends BasePage {
         driver.findElement(textLocator(ACTION_REQUISITES)).click();
     }
 
+    /** Selects the "История" tab (the operations list). */
+    public void openHistoryTab() {
+        driver.findElement(textLocator(TAB_HISTORY)).click();
+    }
+
+    /** Selects the "Настройки" tab (account/deposit settings). */
+    public void openSettingsTab() {
+        driver.findElement(textLocator(TAB_SETTINGS)).click();
+    }
+
+    /** True if the requisites screen exposes a copy-to-clipboard control. */
+    public boolean hasCopyControl() {
+        return !driver.findElements(copyLocator()).isEmpty();
+    }
+
+    /**
+     * Taps the copy-to-clipboard icon on the requisites screen and returns the resulting clipboard
+     * text. Android exposes the icon as {@code iv_copy}; the copied value is the account IBAN.
+     */
+    public String copyRequisiteAndReadClipboard() {
+        driver.findElement(copyLocator()).click();
+        return ((HasClipboard) driver).getClipboardText();
+    }
+
     /** Taps the toolbar back arrow to return to the main screen. */
     public void goBack() {
         driver.findElement(backLocator()).click();
+    }
+
+    // The copy-to-clipboard icon on the requisites screen. iOS exposes it as accessibilityId
+    // "Common/Copy" (Android: iv_copy) — both confirmed from a live requisites recon.
+    private By copyLocator() {
+        return switch (Platform.current()) {
+            case ANDROID -> AppiumBy.id(ANDROID_COPY_ID);
+            case IOS -> AppiumBy.accessibilityId(IOS_COPY_ID);
+        };
     }
 
     /**

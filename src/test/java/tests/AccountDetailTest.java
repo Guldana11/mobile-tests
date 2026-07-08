@@ -88,6 +88,40 @@ public class AccountDetailTest extends BaseTest {
                 "Account detail should expose the 'История' and 'Настройки' tabs");
     }
 
+    @Test(description = "The История tab exposes the full-history entry ('Посмотреть историю')")
+    public void accountHistoryTabShowsViewHistory() {
+        AccountDetailPage detail = mainScreen.openFirstAccount();
+        Assert.assertTrue(detail.isDisplayed(), "Account detail should open");
+        detail.openHistoryTab();
+        Assert.assertTrue(detail.showsText("Посмотреть историю"),
+                "История tab should expose the full-history entry ('Посмотреть историю')");
+    }
+
+    @Test(description = "The Настройки tab exposes rename / hide / set-default account actions")
+    public void accountSettingsTabShowsActions() {
+        AccountDetailPage detail = mainScreen.openFirstAccount();
+        Assert.assertTrue(detail.isDisplayed(), "Account detail should open");
+        detail.openSettingsTab();
+        Assert.assertTrue(detail.showsText("Переименовать"),
+                "Настройки should expose the rename action ('Переименовать')");
+        Assert.assertTrue(detail.showsText("Скрыть из главного меню"),
+                "Настройки should expose the hide action ('Скрыть из главного меню')");
+        Assert.assertTrue(detail.showsText("Счет по-умолчанию"),
+                "Настройки should expose the set-default action ('Счет по-умолчанию')");
+    }
+
+    @Test(description = "The copy icon on Реквизиты puts the account IBAN on the clipboard")
+    public void requisitesCopyPutsIbanOnClipboard() {
+        AccountDetailPage detail = mainScreen.openFirstAccount();
+        Assert.assertTrue(detail.isDisplayed(), "Account detail should open");
+        detail.openRequisites();
+        Assert.assertTrue(detail.showsText("Номер счета"), "Requisites should be loaded");
+        Assert.assertTrue(detail.hasCopyControl(), "Requisites should expose a copy-to-clipboard control");
+        String copied = detail.copyRequisiteAndReadClipboard();
+        Assert.assertTrue(copied != null && copied.contains("KZ"),
+                "Copy should put the account IBAN (KZ…) on the clipboard, got: " + copied);
+    }
+
     @Test(description = "Back arrow on account detail returns to the main screen")
     public void backFromDetailReturnsToMain() {
         AccountDetailPage detail = mainScreen.openFirstAccount();
