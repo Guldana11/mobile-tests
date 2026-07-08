@@ -51,3 +51,6 @@ apps/ios/*.ipa
 allure-results/
 allure-report/
 test-output/
+
+### Личная песочница для обучения (в git не попадает) ###
+обучение/

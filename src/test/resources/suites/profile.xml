@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<!--
+  Profile screen (read-only): opened via the header avatar. No PIN/password/language actually changed.
+  Run:  ./gradlew test -Dplatform=android -DsuiteFile=profile.xml
+        ./gradlew test -Dplatform=ios     -DsuiteFile=profile.xml
+-->
+<suite name="Profile (read-only)" verbose="1" configfailurepolicy="continue">
+    <listeners><listener class-name="core.RetryListener"/></listeners>
+    <test name="profile"><classes>
+        <class name="tests.ProfileTest"/>
+    </classes></test>
+</suite>

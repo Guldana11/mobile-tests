@@ -48,6 +48,8 @@ public class MainScreenPage extends BasePage {
     private static final String IOS_SIDE_MENU_CLOSE = "Common/rounded_close";
     private static final String ANDROID_BURGER_ID = "kz.bnk.app.dev:id/mcv_menu";
     private static final String ANDROID_SIDE_MENU_CLOSE_ID = "kz.bnk.app.dev:id/btn_close";
+    private static final String ANDROID_AVATAR_ID = "kz.bnk.app.dev:id/mcv_avatar";  // header avatar → profile
+    private static final String IOS_AVATAR = "Profile/user";                         // iOS avatar accessibilityId (recon-confirmed)
 
     private static final String LATER_BUTTON = "Позже";
     // Title of the app-lock screen the app shows when it auto-locks during a long session.
@@ -196,6 +198,12 @@ public class MainScreenPage extends BasePage {
     /** Opens the side menu (drawer) via the header burger button. */
     public void openSideMenu() {
         driver.findElement(burgerLocator()).click();
+    }
+
+    /** Opens the profile screen by tapping the header avatar (top-left). */
+    public ProfilePage openProfile() {
+        driver.findElement(avatarLocator()).click();
+        return new ProfilePage(driver);
     }
 
     /**
@@ -662,6 +670,13 @@ public class MainScreenPage extends BasePage {
         return switch (Platform.current()) {
             case IOS -> AppiumBy.accessibilityId(IOS_BURGER);
             case ANDROID -> AppiumBy.id(ANDROID_BURGER_ID);
+        };
+    }
+
+    private By avatarLocator() {
+        return switch (Platform.current()) {
+            case IOS -> AppiumBy.accessibilityId(IOS_AVATAR);
+            case ANDROID -> AppiumBy.id(ANDROID_AVATAR_ID);
         };
     }
 
