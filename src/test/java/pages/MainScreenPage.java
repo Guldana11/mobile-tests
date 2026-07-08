@@ -119,6 +119,25 @@ public class MainScreenPage extends BasePage {
         driver.findElement(tabLocator(TAB_HOME)).click();
     }
 
+    /** Scrolls the account list to the bottom and taps a bottom action by its visible label. */
+    public void tapBottomAction(String label) {
+        scrollAccountsDown();
+        new org.openqa.selenium.support.ui.WebDriverWait(driver, Duration.ofSeconds(10))
+                .until(org.openqa.selenium.support.ui.ExpectedConditions.elementToBeClickable(
+                        textContainsLocator(label)))
+                .click();
+    }
+
+    /** Opens the account-visibility screen via its bottom action (Android "Скрытые счета", iOS "Скрытие счета"). */
+    public HiddenAccountsPage openHiddenAccounts() {
+        String label = switch (Platform.current()) {
+            case ANDROID -> "Скрытые счета";
+            case IOS -> "Скрытие счета";
+        };
+        tapBottomAction(label);
+        return new HiddenAccountsPage(driver);
+    }
+
     /** Opens a Быстрое меню item by its visible label (opens the Быстрое меню tab first). */
     public void openQuickMenuItem(String label) {
         openQuickMenuTab();
