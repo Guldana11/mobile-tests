@@ -3,6 +3,7 @@ package tests;
 import core.BaseTest;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import pages.MainScreenPage;
 
@@ -54,6 +55,31 @@ public class SideMenuTest extends BaseTest {
             }
             mainScreen.openHomeTab();
         }
+    }
+
+    // Side-menu destinations paired with a unique content marker on the screen they open. "Филиалы" is
+    // covered by BranchesTest, "Курсы обмена валют" by sideMenuItemOpensAndBackReturns, "Выйти" is logout.
+    @DataProvider(name = "sideDestinations")
+    public Object[][] sideDestinations() {
+        return new Object[][]{
+                {"Новости", "Новости"},
+                {"Подать обращение", "Тип обращения"},
+                {"Часто задаваемые вопросы", "Как войти в приложение"},
+                {"Служба поддержки", "Контакты"},
+        };
+    }
+
+    @Test(dataProvider = "sideDestinations",
+            description = "Each side-menu destination opens its screen with the expected content; back returns to main")
+    public void sideMenuDestinationOpensAndReturns(String item, String marker) {
+        mainScreen.openSideMenu();
+        Assert.assertTrue(mainScreen.isSideMenuShown(), "The side menu should open");
+        mainScreen.openSideMenuItem(item);
+        Assert.assertTrue(mainScreen.showsText(marker),
+                "The '" + item + "' screen should show '" + marker + "'");
+        mainScreen.tapToolbarBack();
+        Assert.assertTrue(mainScreen.isDisplayed(),
+                "Back from '" + item + "' should return to the main screen");
     }
 
     @Test(description = "The side menu lists its expected navigation items")

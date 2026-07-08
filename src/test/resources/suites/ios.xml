@@ -21,6 +21,7 @@
             <class name="tests.MainScreenTest"/>          <!-- 3 кейса: PIN setup → главный экран -->
             <class name="tests.SideMenuTest"/>            <!-- 2 кейса: боковое меню + переход "Курсы обмена валют" (BackButton) -->
             <class name="tests.ProfileTest"/>             <!-- профиль (аватар Profile/user): 4 кейса зелёные + 2 skip (версия сборки и «в разработке» на iOS не экспонятся) -->
+            <class name="tests.QuickMenuTest"/>           <!-- быстрое меню: список + Избранное/автоперевод и Цифровой кредит (заглушка) открываются и возврат 3 кейс -->
             <class name="tests.BottomNavTest"/>           <!-- 2 кейса: Главная↔Продукты (закрытие quick-menu — iOS skip) -->
             <class name="tests.PullToRefreshTest"/>       <!-- 2 кейса: pull-to-refresh (проверка контейнера — iOS skip) -->
             <class name="tests.AccountDetailTest"/>       <!-- T-01: тап по счёту (coord-tap) → экран деталей: actions ("Переводы"/"Реквизиты"), вкладки, back (chevron.left) 3 кейса -->

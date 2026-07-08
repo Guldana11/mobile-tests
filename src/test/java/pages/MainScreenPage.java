@@ -119,6 +119,15 @@ public class MainScreenPage extends BasePage {
         driver.findElement(tabLocator(TAB_HOME)).click();
     }
 
+    /** Opens a Быстрое меню item by its visible label (opens the Быстрое меню tab first). */
+    public void openQuickMenuItem(String label) {
+        openQuickMenuTab();
+        new org.openqa.selenium.support.ui.WebDriverWait(driver, Duration.ofSeconds(10))
+                .until(org.openqa.selenium.support.ui.ExpectedConditions.elementToBeClickable(
+                        textContainsLocator(label)))
+                .click();
+    }
+
     /**
      * Opens the within-bank, by-phone transfer from the Быстрое меню sheet, dismissing the
      * fraud-warning sheet, and returns the {@link PhoneTransferPage} on the form. The menu item label
@@ -407,6 +416,11 @@ public class MainScreenPage extends BasePage {
         return !driver.findElements(textLocator(label)).isEmpty();
     }
 
+    /** True if any visible element's text/label CONTAINS the substring (waits up to 10s). */
+    public boolean showsText(String substring) {
+        return waitVisible(textContainsLocator(substring), Duration.ofSeconds(10));
+    }
+
     /** Taps a side-menu item by its visible label (the menu must already be open). */
     public void openSideMenuItem(String label) {
         driver.findElement(textLocator(label)).click();
@@ -418,6 +432,21 @@ public class MainScreenPage extends BasePage {
      * the sub-screen was reached from there.
      */
     public void tapToolbarBack() {
+        // Most in-app screens use "iv_back", but some newer ones (the under-development stubs, the
+        // favorites screen) use "v_back"/"back". Try the known ids in order, then fall back to the
+        // hardware Back key so recovery never gets stuck on an unrecognised toolbar.
+        if (Platform.current() == Platform.ANDROID) {
+            for (String id : new String[]{ANDROID_TOOLBAR_BACK_ID,
+                    "kz.bnk.app.dev:id/v_back", "kz.bnk.app.dev:id/back"}) {
+                var els = driver.findElements(AppiumBy.id(id));
+                if (!els.isEmpty()) {
+                    els.get(0).click();
+                    return;
+                }
+            }
+            driver.navigate().back();
+            return;
+        }
         driver.findElement(toolbarBackLocator()).click();
     }
 
