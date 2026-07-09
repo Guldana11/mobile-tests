@@ -60,6 +60,16 @@ public class ProfilePage extends BasePage {
         driver.findElement(rowLocator("Настройки", IOS_ROW_SETTINGS)).click();
     }
 
+    /**
+     * Opens the language chooser: taps "Настройки" then the "Язык" row. The chooser is a bottom sheet
+     * listing Қазақша / Русский / English / 한국어 with a per-row radio ({@code cb_language}). Read-only —
+     * tests never pick a language (that would switch the whole app for the shared account).
+     */
+    public void openLanguage() {
+        openSettings();
+        driver.findElement(textContainsLocator("Язык")).click();
+    }
+
     private By rowLocator(String androidText, String iosAccessibilityId) {
         return switch (Platform.current()) {
             case IOS -> AppiumBy.accessibilityId(iosAccessibilityId);

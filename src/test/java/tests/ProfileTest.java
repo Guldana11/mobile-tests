@@ -69,6 +69,17 @@ public class ProfileTest extends BaseTest {
                 "'Персональная информация' should show the under-development notice");
     }
 
+    @Test(description = "The 'Язык' setting opens a chooser listing the four app languages")
+    public void languageChooserListsLanguages() {
+        ProfilePage profile = mainScreen.openProfile();
+        Assert.assertTrue(profile.isDisplayed(), "Profile screen should open");
+        profile.openLanguage();
+        Assert.assertTrue(profile.showsText("Қазақша"), "Language chooser should list 'Қазақша'");
+        Assert.assertTrue(profile.showsText("Русский"), "Language chooser should list 'Русский'");
+        Assert.assertTrue(profile.showsText("English"), "Language chooser should list 'English'");
+        Assert.assertTrue(profile.showsText("한국어"), "Language chooser should list '한국어'");
+    }
+
     @Test(description = "The in-profile Настройки list exposes change-PIN / change-password / language")
     public void profileSettingsListsActions() {
         ProfilePage profile = mainScreen.openProfile();
