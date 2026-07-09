@@ -128,6 +128,73 @@ public class MainScreenPage extends BasePage {
                 .click();
     }
 
+    /**
+     * Reveals the "Недавнее / История" operations page by swiping the home content LEFT. Android uses
+     * the UiAutomator2 {@code mobile: swipeGesture} (W3C pointer swipes don't trigger this pager on
+     * this build); iOS attempts {@code mobile: swipe}. Operation rows carry {@code tv_service} (type),
+     * {@code tv_contract} (counterparty), {@code tv_amount} (amount).
+     */
+    public void openRecentHistory() {
+        var size = driver.manage().window().getSize();
+        switch (Platform.current()) {
+            case ANDROID -> driver.executeScript("mobile: swipeGesture", java.util.Map.of(
+                    "left", (int) (size.getWidth() * 0.1), "top", (int) (size.getHeight() * 0.35),
+                    "width", (int) (size.getWidth() * 0.8), "height", (int) (size.getHeight() * 0.25),
+                    "direction", "left", "percent", 0.95, "speed", 800));
+            // iOS: a quick W3C swipe left (finger right→left) from mid-screen moves the pager.
+            case IOS -> {
+                int y = (int) (size.getHeight() * 0.45);
+                PointerInput f = new PointerInput(PointerInput.Kind.TOUCH, "swipe");
+                Sequence s = new Sequence(f, 1)
+                        .addAction(f.createPointerMove(Duration.ZERO, PointerInput.Origin.viewport(),
+                                (int) (size.getWidth() * 0.9), y))
+                        .addAction(f.createPointerDown(PointerInput.MouseButton.LEFT.asArg()))
+                        .addAction(f.createPointerMove(Duration.ofMillis(400), PointerInput.Origin.viewport(),
+                                (int) (size.getWidth() * 0.1), y))
+                        .addAction(f.createPointerUp(PointerInput.MouseButton.LEFT.asArg()));
+                driver.perform(Collections.singletonList(s));
+            }
+        }
+    }
+
+    /** Number of operation rows on the "Недавнее/История" page (Android {@code tv_service}). */
+    public int recentOperationCount() {
+        return driver.findElements(AppiumBy.id("kz.bnk.app.dev:id/tv_service")).size();
+    }
+
+    /**
+     * Opens the full/general history: reveals the recent page ({@link #openRecentHistory()}), then taps
+     * the "История" link next to "Недавнее". The full screen is date-grouped and adds a "Месяц" period
+     * filter (absent on the recent page). Android link = {@code tv_additional} "История".
+     */
+    public void openGeneralHistory() {
+        openRecentHistory();
+        By link = switch (Platform.current()) {
+            case ANDROID -> AppiumBy.androidUIAutomator(
+                    "new UiSelector().resourceId(\"kz.bnk.app.dev:id/tv_additional\").text(\"История\")");
+            case IOS -> AppiumBy.iOSNsPredicateString(
+                    "(type == 'XCUIElementTypeButton' OR type == 'XCUIElementTypeStaticText') AND label == 'История'");
+        };
+        new org.openqa.selenium.support.ui.WebDriverWait(driver, Duration.ofSeconds(10))
+                .until(org.openqa.selenium.support.ui.ExpectedConditions.elementToBeClickable(link))
+                .click();
+    }
+
+    /**
+     * On the general history, taps the first operation row to open its info screen (date/time, type,
+     * amount, status "Операция завершена успешно", Откуда/Куда, "Номер операции", Повторить/Квитанция).
+     * Android row = {@code cl_content}; iOS taps the first operation cell by its type label.
+     */
+    public void openFirstOperation() {
+        By op = switch (Platform.current()) {
+            case ANDROID -> AppiumBy.id("kz.bnk.app.dev:id/cl_content");
+            case IOS -> AppiumBy.iOSNsPredicateString("label CONTAINS 'Со счета на счет'");
+        };
+        new org.openqa.selenium.support.ui.WebDriverWait(driver, Duration.ofSeconds(10))
+                .until(org.openqa.selenium.support.ui.ExpectedConditions.presenceOfElementLocated(op))
+                .click();
+    }
+
     /** Opens the account-visibility screen via its bottom action (Android "Скрытые счета", iOS "Скрытие счета"). */
     public HiddenAccountsPage openHiddenAccounts() {
         String label = switch (Platform.current()) {

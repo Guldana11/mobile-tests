@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<!-- Recent-operations history (swipe home left). Read-only. -->
+<suite name="History (read-only)" verbose="1" configfailurepolicy="continue">
+    <listeners><listener class-name="core.RetryListener"/></listeners>
+    <test name="history"><classes>
+        <class name="tests.HistoryTest"/>
+    </classes></test>
+</suite>

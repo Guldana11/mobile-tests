@@ -6,39 +6,40 @@
     </listeners>
     <test name="Android smoke">
         <classes>
-            <class name="tests.SmokeTest"/>                 <!-- запуск приложения 1 кейс -->
-            <class name="tests.LanguageSelectionTest"/>     <!-- выбор языка (4 опции) 2 кейс -->
-            <class name="tests.WelcomeTest"/>               <!-- экран приветствия 2 кейс -->
-            <class name="tests.BranchesTest"/>              <!-- филиалы + диалог геолокации 3 кейс -->
-            <class name="tests.MoreTest"/>                  <!-- экран "О Банке" 2 кейс -->
-            <class name="tests.PhoneLoginTest"/>            <!-- ввод номера телефона 5 кейс -->
-            <class name="tests.AgreementLinkTest"/>         <!-- ссылка "условиями Банка" + bottom sheet 6 кейс -->
-            <class name="tests.TermsDocumentTest"/>         <!-- PDF viewer документов 6 кейс -->
-            <class name="tests.PasswordLoginTest"/>         <!-- вход по паролю 5 кейс (1 iOS-only skip) -->
-            <class name="tests.ForgotPasswordTest"/>        <!-- "Забыли пароль?" — оверлей загрузки 1 кейс (iOS skip) -->
-            <class name="tests.PasswordRecoveryTest"/>      <!-- восстановление: SMS-код → видеоидентификация 2 кейс (iOS skip) -->
-            <class name="tests.PinCodeTest"/>               <!-- экран создания PIN 2 кейс -->
-            <class name="tests.MainScreenTest"/>            <!-- PIN setup → главный экран: вкладки, приветствие, счета, скролл 4 кейс -->
-            <class name="tests.AccountDetailTest"/>         <!-- тап по счёту → экран деталей: баланс, действия, вкладки, назад 3 кейс (iOS: тоже, в ios.xml) -->
-            <class name="tests.DepositDetailTest"/>         <!-- тап по вкладу → детали депозита (тот же layout: баланс/Доступный, Перевести/Реквизиты, История/Настройки, back); read-only 3 кейса (кросс-платформенно) -->
-            <class name="tests.SideMenuTest"/>              <!-- боковое меню: список пунктов + переход в "Курсы обмена валют" и назад 2 кейс (iOS: тоже, в ios.xml) -->
-            <class name="tests.ProfileTest"/>               <!-- профиль (тап по аватару): ФИО+телефон, разделы, Настройки (Изменить ПИН/пароль/Язык), версия, «в разработке», back 6 кейс (iOS: 4 + 2 skip — версия и персональная инфо) -->
-            <class name="tests.QuickMenuTest"/>             <!-- быстрое меню: список разделов + Избранное/автоперевод и Цифровой кредит (заглушка) открываются и возврат 3 кейс (кросс-платформенно) -->
-            <class name="tests.HideAccountTest"/>           <!-- скрытие счёта («Скрытые счета» снизу): страница видимости открывается + секция «Скрытый» + drag-drop меняет порядок (без Сохранить) 3 кейс (iOS: page-opens; секция/drag Android-only) -->
-            <class name="tests.BottomNavTest"/>             <!-- нижняя навигация: Главная↔Продукты табы + Быстрое меню (bottom sheet, закрытие) 2 кейс (iOS: тоже; закрытие quick-menu — iOS skip, баг приложения) -->
-            <class name="tests.PullToRefreshTest"/>         <!-- pull-to-refresh главного экрана: контейнер + перезагрузка экрана 2 кейс (iOS: тоже; контрол refresh не экспонится — iOS skip) -->
-            <class name="tests.TransferTest"/>              <!-- T-05 перевод между своими счетами → экран "Подтверждение" (деньги НЕ двигаются) 2 кейса: Перевести + drag/drop (iOS — отдельным классом TransferIosTest) -->
-            <class name="tests.PhoneTransferTest"/>         <!-- T-06 перевод по номеру телефона (внутри банка) → экран "Подтверждение" (деньги НЕ двигаются) 1 кейс (iOS: тоже, кросс-платформенно) -->
-            <class name="tests.AccountNumberTransferTest"/> <!-- T-07 перевод по номеру счёта: резолв получателя (ИИН+счёт) → источник (дефолтный)/КНП → экран "Подтверждение" (деньги НЕ двигаются) 2 кейса (кросс-платформенно, Android verified) -->
-            <class name="tests.TransferValidationTest"/>   <!-- T-08 валидации формы перевода: submit disabled без суммы/согласия; сумма > лимита (100M) отклоняется — на Android submit остаётся disabled + ошибка inline (не жмём) 2 кейса (verified iOS + Android) -->
-            <class name="tests.SecurityTest"/>              <!-- EPIC 7 безопасность: SEC-4 маскирование пароля, SEC-3 перевод требует OTP (не двигает деньги) 2 кейса -->
-            <class name="tests.OtherBankTransferTest"/>     <!-- Перевод в другой банк → экран "Подтверждение" (деньги НЕ двигаются) 1 кейс (кросс-платформенно, БИК Kaspi) -->
-            <class name="tests.OtherBankValidationTest"/>   <!-- Перевод в другой банк — негативы: submit disabled без согласия; неверный БИК ("IBAN не принадлежит выбранному банку") 2 кейса -->
-            <class name="tests.DepositValidationTest"/>     <!-- Депозит — негативы (не открывают вклад): submit disabled без 3 согласий; сумма < минимума → disabled 2 кейса (кросс-платформенно) -->
-            <!-- ДЕСТРУКТИВНЫЕ (тестовый стенд, тестовые деньги): группа "destructive" → БЕЗ ретрая (RetryListener пропускает), чтобы флейк не открыл 2-й вклад / не залочил повторно. -->
-            <class name="tests.SecurityLockoutTest"/>       <!-- SEC-1/SEC-2 brute-force: лочит BURNER-аккаунт (~5 мин), no-retry 2 кейса -->
-            <class name="tests.DepositOpenTest"/>           <!-- Реально открывает вклады: Срочный (1000₸) + Сберегательный (15000₸) + Срочный USD (skip без USD-счёта); списывает деньги, no-retry 3 кейса -->
-            <class name="tests.AccountOpenTest"/>           <!-- Реально открывает текущие счета: KZT + USD (деньги НЕ двигаются, просто создаётся счёт), no-retry 2 кейса (кросс-платформенно) -->
+            <class name="tests.SmokeTest"/>                  <!-- 1 кейс: запуск приложения -->
+            <class name="tests.LanguageSelectionTest"/>      <!-- 2 кейса: выбор языка (4 опции) -->
+            <class name="tests.WelcomeTest"/>                <!-- 2 кейса: экран приветствия -->
+            <class name="tests.BranchesTest"/>               <!-- 3 кейса: филиалы + диалог геолокации -->
+            <class name="tests.MoreTest"/>                   <!-- 2 кейса: экран «О Банке» -->
+            <class name="tests.PhoneLoginTest"/>             <!-- 5 кейсов: ввод номера телефона -->
+            <class name="tests.AgreementLinkTest"/>          <!-- 6 кейсов: ссылка «условиями Банка» + bottom sheet -->
+            <class name="tests.TermsDocumentTest"/>          <!-- 6 кейсов: PDF viewer документов -->
+            <class name="tests.PasswordLoginTest"/>          <!-- 5 кейсов: вход по паролю (1 iOS-only skip) -->
+            <class name="tests.ForgotPasswordTest"/>         <!-- 1 кейс: «Забыли пароль?» — оверлей загрузки (iOS skip) -->
+            <class name="tests.PasswordRecoveryTest"/>       <!-- 2 кейса: SMS-код → видеоидентификация (iOS skip) -->
+            <class name="tests.PinCodeTest"/>                <!-- 2 кейса: экран создания PIN -->
+            <class name="tests.MainScreenTest"/>             <!-- 4 кейса: главный экран — вкладки, приветствие, счета, скролл -->
+            <class name="tests.AccountDetailTest"/>          <!-- 3 кейса: детали счёта — баланс, действия, вкладки, назад -->
+            <class name="tests.DepositDetailTest"/>          <!-- 3 кейса: детали депозита (read-only, кросс-платформенно) -->
+            <class name="tests.SideMenuTest"/>               <!-- 2 кейса: боковое меню + «Курсы обмена валют» -->
+            <class name="tests.ProfileTest"/>                <!-- 6 кейсов: профиль — ФИО/телефон, разделы, Настройки, версия, back (iOS: 4 + 2 skip) -->
+            <class name="tests.QuickMenuTest"/>              <!-- 3 кейса: быстрое меню — разделы + Избранное/Цифровой кредит -->
+            <class name="tests.HideAccountTest"/>            <!-- 3 кейса: скрытие счёта — видимость + секция «Скрытый» + drag (iOS: 1 + 2 skip) -->
+            <class name="tests.HistoryTest"/>                <!-- 2 кейса: история операций (свайп главного влево) -->
+            <class name="tests.BottomNavTest"/>              <!-- 2 кейса: нижняя навигация — Главная↔Продукты + Быстрое меню -->
+            <class name="tests.PullToRefreshTest"/>          <!-- 2 кейса: pull-to-refresh главного (iOS skip) -->
+            <class name="tests.TransferTest"/>               <!-- 2 кейса: T-05 перевод между своими (деньги НЕ двигаются) -->
+            <class name="tests.PhoneTransferTest"/>          <!-- 1 кейс: T-06 перевод по телефону (деньги НЕ двигаются) -->
+            <class name="tests.AccountNumberTransferTest"/>  <!-- 2 кейса: T-07 перевод по номеру счёта (деньги НЕ двигаются) -->
+            <class name="tests.TransferValidationTest"/>     <!-- 2 кейса: T-08 валидации формы перевода -->
+            <class name="tests.SecurityTest"/>               <!-- 2 кейса: EPIC 7 — маскирование пароля + OTP на перевод -->
+            <class name="tests.OtherBankTransferTest"/>      <!-- 1 кейс: перевод в другой банк (деньги НЕ двигаются) -->
+            <class name="tests.OtherBankValidationTest"/>    <!-- 2 кейса: перевод в другой банк — негативы (согласие, БИК) -->
+            <class name="tests.DepositValidationTest"/>      <!-- 2 кейса: депозит — негативы (согласия, минимум) -->
+            <!-- ⚠ ДЕСТРУКТИВНЫЕ (тестовый стенд): группа «destructive» → БЕЗ ретрая, чтобы флейк не залочил/не открыл лишнее. -->
+            <class name="tests.SecurityLockoutTest"/>        <!-- 2 кейса: SEC-1/SEC-2 brute-force — лочит BURNER (~5 мин), no-retry -->
+            <class name="tests.DepositOpenTest"/>            <!-- 3 кейса: реально открывает вклады (списывает деньги), no-retry -->
+            <class name="tests.AccountOpenTest"/>            <!-- 2 кейса: реально открывает счета KZT+USD, no-retry -->
         </classes>
     </test>
 </suite>
